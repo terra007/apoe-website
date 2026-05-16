@@ -86,11 +86,11 @@ export default function ThreePillars() {
             }) => (
               <div
                 key={number}
-                className={`relative rounded-2xl border-2 ${color} p-7 overflow-hidden`}
+                className={`relative rounded-2xl border-2 ${color} p-5 sm:p-7 overflow-hidden`}
               >
                 {/* Background number */}
                 <span
-                  className={`absolute top-4 right-5 text-7xl font-black ${numberColor} select-none`}
+                  className={`absolute top-4 right-4 text-6xl sm:text-7xl font-black ${numberColor} select-none`}
                   aria-hidden="true"
                 >
                   {number}

@@ -161,7 +161,7 @@ export default function ProcessTracker() {
               aria-hidden="true"
             />
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 relative">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 relative">
               {phases.map((phase) => {
                 const Icon = phase.icon;
                 const isActive = phase.id === activePhase;
@@ -173,7 +173,7 @@ export default function ProcessTracker() {
                     type="button"
                     onClick={() => setActivePhase(phase.id)}
                     className={cn(
-                      "relative flex flex-col items-center gap-2 rounded-xl border-2 p-4 text-center transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-600",
+                      "relative flex flex-col items-center gap-1.5 sm:gap-2 rounded-xl border-2 p-3 sm:p-4 text-center transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-600",
                       isActive
                         ? `${phase.borderColor} ${phase.color} shadow-md`
                         : isPast
@@ -186,7 +186,7 @@ export default function ProcessTracker() {
                     {/* Phase number indicator */}
                     <div
                       className={cn(
-                        "relative z-10 flex h-12 w-12 items-center justify-center rounded-full border-2",
+                        "relative z-10 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full border-2",
                         isActive
                           ? `${phase.activeColor} border-transparent text-white`
                           : isPast
@@ -195,9 +195,9 @@ export default function ProcessTracker() {
                       )}
                     >
                       {isPast && !isActive ? (
-                        <CheckCircle2 className="h-6 w-6" aria-hidden="true" />
+                        <CheckCircle2 className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
                       ) : (
-                        <Icon className="h-6 w-6" aria-hidden="true" />
+                        <Icon className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
                       )}
                     </div>
 
@@ -239,32 +239,34 @@ export default function ProcessTracker() {
 
         {/* Phase Detail Panel */}
         <div
-          className={`rounded-2xl border-2 ${currentPhase.borderColor} ${currentPhase.color} p-8`}
+          className={`rounded-2xl border-2 ${currentPhase.borderColor} ${currentPhase.color} p-4 sm:p-8`}
           aria-live="polite"
         >
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2">
-              <div className="flex items-start gap-4 mb-5">
+              <div className="flex items-start gap-3 sm:gap-4 mb-5">
                 <div
-                  className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ${currentPhase.activeColor} text-white`}
+                  className={`flex h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 items-center justify-center rounded-xl ${currentPhase.activeColor} text-white`}
                 >
-                  <currentPhase.icon className="h-6 w-6" aria-hidden="true" />
+                  <currentPhase.icon className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <div className="text-xs font-semibold uppercase tracking-wider text-navy-500 mb-1">
                     Phase {currentPhase.id} von {phases.length}
                   </div>
-                  <h3 className="text-xl font-bold text-navy-900">
+                  <h3 className="text-base sm:text-xl font-bold text-navy-900 leading-snug">
                     {currentPhase.title}
                   </h3>
-                  <div className="flex items-center gap-3 mt-1 text-sm text-navy-500">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs sm:text-sm text-navy-500">
                     <span className="flex items-center gap-1">
-                      <Clock className="h-3.5 w-3.5" />
+                      <Clock className="h-3.5 w-3.5 flex-shrink-0" />
                       {currentPhase.duration}
                     </span>
-                    <span className="h-3 w-px bg-navy-300" />
-                    <span>{currentPhase.location}</span>
+                    <span className="hidden sm:inline h-3 w-px bg-navy-300" />
+                    <span className="truncate max-w-[200px] sm:max-w-none">
+                      {currentPhase.location}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -293,7 +295,7 @@ export default function ProcessTracker() {
 
             {/* Documents Sidebar */}
             <div>
-              <div className="rounded-xl border border-navy-200 bg-white p-5">
+              <div className="rounded-xl border border-navy-200 bg-white p-4 sm:p-5">
                 <h4 className="text-sm font-bold text-navy-900 uppercase tracking-wide mb-4">
                   Benötigte Dokumente
                 </h4>
@@ -343,10 +345,10 @@ export default function ProcessTracker() {
         </div>
 
         {/* Total duration summary */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-navy-600">
-          <div className="flex items-center gap-2 rounded-full bg-white border border-navy-200 px-4 py-2 shadow-sm">
-            <Clock className="h-4 w-4 text-red-austria" />
-            <strong>Gesamtlaufzeit:</strong> ca. 15–22 Monate (Bangkok → DGKP Österreich)
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm text-navy-600">
+          <div className="flex items-center gap-2 rounded-full bg-white border border-navy-200 px-3 sm:px-4 py-2 shadow-sm text-center">
+            <Clock className="h-4 w-4 text-red-austria flex-shrink-0" />
+            <span><strong>Gesamtlaufzeit:</strong> ca. 15–22 Monate (Bangkok → DGKP Österreich)</span>
           </div>
         </div>
       </div>

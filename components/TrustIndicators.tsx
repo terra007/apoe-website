@@ -36,10 +36,10 @@ const partnerLogos = [
 
 export default function TrustIndicators() {
   return (
-    <section className="bg-navy-50 py-20" aria-labelledby="trust-heading">
+    <section className="bg-navy-50 py-12 sm:py-20" aria-labelledby="trust-heading">
       <div className="container-wide">
         {/* Partner Logos */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 sm:mb-16">
           <p className="text-xs font-semibold uppercase tracking-widest text-navy-400 mb-6">
             In Abstimmung mit öffentlichen Stellen und Verbänden
           </p>
