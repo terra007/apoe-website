@@ -44,7 +44,7 @@ export const pflegekraefte: Pflegekraft[] = [
     skills: ["Altenpflege", "Grundpflege", "Demenzbetreuung", "Wundversorgung", "Mobilitätsförderung"],
     availableFrom: "Q4 2025",
     avatarColor: "from-blue-600 to-blue-800",
-    videoUrl: undefined,
+    videoUrl: "/videos/nattaya.mp4",
     documents: [
       { name: "Pflegediplom (Mahidol University)", status: "anerkannt" },
       { name: "Geburtsurkunde (Apostille)", status: "anerkannt" },
