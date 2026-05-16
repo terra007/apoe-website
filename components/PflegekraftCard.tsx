@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Star, Clock } from "lucide-react";
+import { ArrowRight, Star, Clock, Play } from "lucide-react";
 import { type Pflegekraft, phaseLabels, phaseColors } from "@/lib/pflegekraefte-data";
 
 interface PflegekraftCardProps {
@@ -34,9 +34,16 @@ export default function PflegekraftCard({ pflegekraft: pk }: PflegekraftCardProp
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 border-2 border-white/40 text-2xl font-bold text-white">
             {initials}
           </div>
-          <span className="text-xs font-medium text-white/70 bg-black/20 rounded-full px-3 py-0.5">
-            🎬 Intro-Video folgt
-          </span>
+          {pk.videoUrl ? (
+            <span className="flex items-center gap-1.5 text-xs font-medium text-white bg-black/30 rounded-full px-3 py-0.5">
+              <Play className="h-3 w-3 fill-white" aria-hidden="true" />
+              Video verfügbar
+            </span>
+          ) : (
+            <span className="text-xs font-medium text-white/70 bg-black/20 rounded-full px-3 py-0.5">
+              🎬 Intro-Video folgt
+            </span>
+          )}
         </div>
 
         {/* Phase Badge */}
