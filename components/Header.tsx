@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 const navLinks = [
   { href: "/", label: "Startseite" },
   { href: "/oeffentliche-traeger", label: "Öffentliche Träger" },
+  { href: "/pflegekraefte", label: "Kandidatinnen" },
   { href: "/prozess-tracker", label: "Prozess-Tracker" },
   { href: "/kontakt", label: "Kontakt" },
 ];
