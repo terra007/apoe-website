@@ -3,8 +3,9 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
-  CheckCircle2, Clock, Download, FileText, Image as ImageIcon,
-  Loader2, Plus, Trash2, X, AlertCircle, Save,
+  AlertCircle, CheckCircle2, Clock, Copy, Download,
+  FileText, Image as ImageIcon, Link as LinkIcon,
+  Loader2, Mail, Plus, Save, Trash2, X,
 } from "lucide-react";
 
 const STATUS_OPTIONS = [
@@ -23,64 +24,65 @@ const STATUS_STYLES: Record<string, string> = {
   abgelehnt:             "bg-red-100 text-red-700",
 };
 
+const DOKUMENT_VORSCHLAEGE = [
+  "Polizeiliches Führungszeugnis",
+  "Reisepass (gültig)",
+  "Deutschzertifikat (ÖSD / Goethe / telc / ÖIF)",
+  "Pflegediplom / Ausbildungsnachweis",
+  "Lehrplan mit Stundenübersicht (Theorie & Praxis)",
+  "Nachweis der Ausbildungseinrichtung",
+  "Arbeitszeugnis / Beschäftigungsnachweis",
+  "Geburtsurkunde",
+  "Lichtbild (aktuelles Passfoto)",
+  "Beglaubigte deutsche Übersetzung",
+  "Apostille-Beglaubigung",
+];
+
 type Dokument = {
-  id: string;
-  original_name: string;
-  storage_path: string;
-  uploaded_by: "bewerber" | "admin";
-  mime_type: string | null;
-  groesse: number | null;
-  created_at: string;
-  url: string;
+  id: string; original_name: string; storage_path: string;
+  uploaded_by: "bewerber" | "admin" | "portal";
+  mime_type: string | null; groesse: number | null; created_at: string; url: string;
 };
 
 type Bewerbung = {
-  id: string;
-  vorname: string;
-  nachname: string;
-  email: string;
-  telefon: string | null;
-  herkunftsland: string;
-  ausbildung: string;
-  erfahrung: string;
-  deutschkenntnisse: string;
-  verfuegbarkeit: string;
-  nachricht: string;
-  vorhandene_dokumente: string[];
-  status: string;
-  admin_notizen: string;
-  angefragt_dokumente: string[];
-  created_at: string;
-  bewerbung_dokumente: Dokument[];
+  id: string; vorname: string; nachname: string; email: string; telefon: string | null;
+  herkunftsland: string; ausbildung: string; erfahrung: string;
+  deutschkenntnisse: string; verfuegbarkeit: string; nachricht: string;
+  vorhandene_dokumente: string[]; status: string; admin_notizen: string;
+  angefragt_dokumente: string[]; created_at: string; bewerbung_dokumente: Dokument[];
 };
 
-function formatSize(bytes: number | null) {
+function fmt(bytes: number | null) {
   if (!bytes) return "";
-  return bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(0)} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  return bytes < 1048576 ? `${(bytes / 1024).toFixed(0)} KB` : `${(bytes / 1048576).toFixed(1)} MB`;
 }
-
 function DocIcon({ mime }: { mime: string | null }) {
-  if (mime?.startsWith("image/")) return <ImageIcon className="h-4 w-4 text-blue-500" aria-hidden="true" />;
-  return <FileText className="h-4 w-4 text-red-400" aria-hidden="true" />;
+  return mime?.startsWith("image/")
+    ? <ImageIcon className="h-4 w-4 text-blue-500" />
+    : <FileText className="h-4 w-4 text-red-400" />;
 }
 
-export default function BewerbungDetail({ initial, supabaseUrl, anonKey }: {
-  initial: Bewerbung;
-  supabaseUrl: string;
-  anonKey: string;
+export default function BewerbungDetail({ initial, supabaseUrl }: {
+  initial: Bewerbung; supabaseUrl: string; anonKey: string;
 }) {
   const router = useRouter();
-  const [bew, setBew]         = useState<Bewerbung>(initial);
-  const [notizen, setNotizen] = useState(initial.admin_notizen ?? "");
-  const [status, setStatus]   = useState(initial.status);
-  const [saving, setSaving]   = useState(false);
-  const [saveMsg, setSaveMsg] = useState("");
+  const [bew, setBew]           = useState<Bewerbung>(initial);
+  const [notizen, setNotizen]   = useState(initial.admin_notizen ?? "");
+  const [status, setStatus]     = useState(initial.status);
+  const [saving, setSaving]     = useState(false);
+  const [saveMsg, setSaveMsg]   = useState("");
 
-  const [newAnfrage, setNewAnfrage]   = useState("");
-  const [anfragen, setAnfragen]       = useState<string[]>(initial.angefragt_dokumente ?? []);
+  // Document request
+  const [selected, setSelected]         = useState<string[]>(initial.angefragt_dokumente ?? []);
+  const [customDoc, setCustomDoc]       = useState("");
+  const [sending, setSending]           = useState(false);
+  const [sendResult, setSendResult]     = useState<{ portalUrl: string; emailSent: boolean } | null>(null);
+  const [sendError, setSendError]       = useState("");
+  const [copied, setCopied]             = useState(false);
 
-  const [uploading, setUploading]     = useState(false);
-  const [uploadError, setUploadError] = useState("");
+  // Admin file upload
+  const [uploading, setUploading]       = useState(false);
+  const [uploadError, setUploadError]   = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const publicUrl = (path: string) =>
@@ -88,45 +90,70 @@ export default function BewerbungDetail({ initial, supabaseUrl, anonKey }: {
 
   async function patch(payload: Record<string, unknown>) {
     const res = await fetch(`/api/admin/bewerbungen/${bew.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      method: "PATCH", headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
     return res.ok;
   }
 
   async function saveAll() {
-    setSaving(true);
-    setSaveMsg("");
-    const ok = await patch({ status, admin_notizen: notizen, angefragt_dokumente: anfragen });
+    setSaving(true); setSaveMsg("");
+    const ok = await patch({ status, admin_notizen: notizen, angefragt_dokumente: selected });
     setSaving(false);
     setSaveMsg(ok ? "Gespeichert." : "Fehler beim Speichern.");
     if (ok) setTimeout(() => setSaveMsg(""), 3000);
+  }
+
+  function toggleChip(doc: string) {
+    setSelected((p) => p.includes(doc) ? p.filter((d) => d !== doc) : [...p, doc]);
+  }
+  function addCustom() {
+    const t = customDoc.trim();
+    if (t && !selected.includes(t)) { setSelected((p) => [...p, t]); }
+    setCustomDoc("");
+  }
+  function removeSelected(doc: string) { setSelected((p) => p.filter((d) => d !== doc)); }
+
+  async function sendAnfrage() {
+    if (!selected.length) { setSendError("Bitte mindestens ein Dokument auswählen."); return; }
+    setSending(true); setSendError(""); setSendResult(null);
+    const res = await fetch(`/api/admin/bewerbungen/${bew.id}/dokument-anfrage`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dokumente: selected }),
+    });
+    const data = await res.json();
+    setSending(false);
+    if (!res.ok) { setSendError(data.error ?? "Fehler."); return; }
+    setSendResult({ portalUrl: data.portalUrl, emailSent: data.emailSent });
+    setStatus("unterlagen_angefragt");
+    setBew((p) => ({ ...p, status: "unterlagen_angefragt", angefragt_dokumente: selected }));
+  }
+
+  async function copyLink(url: string) {
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   async function uploadAdminDoc(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 20 * 1024 * 1024) { setUploadError("Datei zu groß (max. 20 MB)."); return; }
-    setUploading(true);
-    setUploadError("");
-
-    const fd = new FormData();
-    fd.append("file", file);
+    setUploading(true); setUploadError("");
+    const fd = new FormData(); fd.append("file", file);
     const res = await fetch(`/api/admin/bewerbungen/${bew.id}/dokument`, { method: "POST", body: fd });
     const data = await res.json();
     setUploading(false);
-
     if (!res.ok) { setUploadError(data.error ?? "Upload fehlgeschlagen."); return; }
     const newDoc: Dokument = { ...data, url: publicUrl(data.storage_path) };
-    setBew((prev) => ({ ...prev, bewerbung_dokumente: [...prev.bewerbung_dokumente, newDoc] }));
+    setBew((p) => ({ ...p, bewerbung_dokumente: [...p.bewerbung_dokumente, newDoc] }));
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   async function deleteDoc(docId: string) {
     if (!confirm("Dokument wirklich löschen?")) return;
     const res = await fetch(`/api/admin/bewerbungen/${bew.id}/dokument/${docId}`, { method: "DELETE" });
-    if (res.ok) setBew((prev) => ({ ...prev, bewerbung_dokumente: prev.bewerbung_dokumente.filter((d) => d.id !== docId) }));
+    if (res.ok) setBew((p) => ({ ...p, bewerbung_dokumente: p.bewerbung_dokumente.filter((d) => d.id !== docId) }));
   }
 
   async function deleteBewerbung() {
@@ -135,19 +162,39 @@ export default function BewerbungDetail({ initial, supabaseUrl, anonKey }: {
     if (res.ok) router.push("/admin/bewerbungen");
   }
 
-  function addAnfrage() {
-    const trimmed = newAnfrage.trim();
-    if (!trimmed || anfragen.includes(trimmed)) return;
-    setAnfragen((prev) => [...prev, trimmed]);
-    setNewAnfrage("");
-  }
-
-  function removeAnfrage(item: string) {
-    setAnfragen((prev) => prev.filter((a) => a !== item));
-  }
-
   const bewerberDocs = bew.bewerbung_dokumente.filter((d) => d.uploaded_by === "bewerber");
+  const portalDocs   = bew.bewerbung_dokumente.filter((d) => d.uploaded_by === "portal");
   const adminDocs    = bew.bewerbung_dokumente.filter((d) => d.uploaded_by === "admin");
+
+  function DocList({ docs, label, color }: { docs: Dokument[]; label: string; color: string }) {
+    return (
+      <div className={`rounded-2xl border p-5 ${color}`}>
+        <h3 className="text-sm font-bold text-navy-900 mb-3">
+          {label} <span className="font-normal text-navy-400">({docs.length})</span>
+        </h3>
+        {docs.length === 0
+          ? <p className="text-xs text-navy-400">Keine Dokumente.</p>
+          : <ul className="space-y-2">
+              {docs.map((doc) => (
+                <li key={doc.id} className="flex items-center gap-2 text-sm">
+                  <DocIcon mime={doc.mime_type} />
+                  <span className="flex-1 truncate text-navy-700" title={doc.original_name}>{doc.original_name}</span>
+                  <span className="text-xs text-navy-400 flex-shrink-0">{fmt(doc.groesse)}</span>
+                  <a href={publicUrl(doc.storage_path)} target="_blank" rel="noopener noreferrer"
+                    className="text-navy-300 hover:text-navy-700 transition-colors flex-shrink-0" title="Herunterladen">
+                    <Download className="h-3.5 w-3.5" />
+                  </a>
+                  <button onClick={() => deleteDoc(doc.id)}
+                    className="text-navy-300 hover:text-red-500 transition-colors flex-shrink-0" title="Löschen">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+        }
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -161,20 +208,19 @@ export default function BewerbungDetail({ initial, supabaseUrl, anonKey }: {
         </div>
         <button onClick={deleteBewerbung}
           className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-100 transition-colors">
-          <Trash2 className="h-3.5 w-3.5" />
-          Bewerbung löschen
+          <Trash2 className="h-3.5 w-3.5" /> Bewerbung löschen
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: Details + Admin Actions */}
+        {/* Left column */}
         <div className="lg:col-span-2 space-y-6">
 
-          {/* Applicant Info */}
+          {/* Applicant info */}
           <div className="rounded-2xl border border-navy-200 bg-white p-6">
             <h2 className="text-base font-bold text-navy-900 mb-4">Bewerberdaten</h2>
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
-              {[
+              {([
                 ["E-Mail", bew.email, `mailto:${bew.email}`],
                 ["Telefon / WhatsApp", bew.telefon ?? "—", bew.telefon ? `tel:${bew.telefon}` : null],
                 ["Herkunftsland", bew.herkunftsland, null],
@@ -182,11 +228,11 @@ export default function BewerbungDetail({ initial, supabaseUrl, anonKey }: {
                 ["Berufserfahrung", bew.erfahrung, null],
                 ["Deutschkenntnisse", bew.deutschkenntnisse, null],
                 ["Verfügbarkeit", bew.verfuegbarkeit, null],
-              ].map(([label, value, href]) => (
-                <div key={label as string}>
+              ] as [string, string, string | null][]).map(([label, value, href]) => (
+                <div key={label}>
                   <dt className="text-xs text-navy-400 mb-0.5">{label}</dt>
                   <dd className="font-medium text-navy-800">
-                    {href ? <a href={href as string} className="text-red-austria hover:underline">{value}</a> : value}
+                    {href ? <a href={href} className="text-red-austria hover:underline">{value}</a> : value}
                   </dd>
                 </div>
               ))}
@@ -197,7 +243,7 @@ export default function BewerbungDetail({ initial, supabaseUrl, anonKey }: {
             </div>
             {bew.vorhandene_dokumente.length > 0 && (
               <div className="mt-4 pt-4 border-t border-navy-100">
-                <dt className="text-xs text-navy-400 mb-2">Vorhandene Dokumente (laut Bewerber)</dt>
+                <dt className="text-xs text-navy-400 mb-2">Laut Bewerber vorhanden</dt>
                 <div className="flex flex-wrap gap-1.5">
                   {bew.vorhandene_dokumente.map((d) => (
                     <span key={d} className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs text-green-700">
@@ -216,10 +262,8 @@ export default function BewerbungDetail({ initial, supabaseUrl, anonKey }: {
               <div>
                 <label className="block text-xs text-navy-500 mb-1">Status</label>
                 <select value={status} onChange={(e) => setStatus(e.target.value)}
-                  className="w-full rounded-lg border border-navy-200 px-3 py-2 text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-400">
-                  {STATUS_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
+                  className="w-full rounded-lg border border-navy-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-400">
+                  {STATUS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </div>
               <div className="flex items-end">
@@ -231,7 +275,7 @@ export default function BewerbungDetail({ initial, supabaseUrl, anonKey }: {
             <div className="mb-4">
               <label className="block text-xs text-navy-500 mb-1">Admin-Notizen (intern)</label>
               <textarea value={notizen} onChange={(e) => setNotizen(e.target.value)} rows={4}
-                className="w-full rounded-lg border border-navy-200 px-3 py-2 text-sm text-navy-900 placeholder:text-navy-400 focus:outline-none focus:ring-2 focus:ring-navy-400 resize-y"
+                className="w-full rounded-lg border border-navy-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-400 resize-y"
                 placeholder="Interne Notizen, Gesprächsprotokoll, nächste Schritte …" />
             </div>
             <div className="flex items-center gap-3">
@@ -244,128 +288,129 @@ export default function BewerbungDetail({ initial, supabaseUrl, anonKey }: {
             </div>
           </div>
 
-          {/* Requested Documents */}
+          {/* ── Document request ── */}
           <div className="rounded-2xl border border-navy-200 bg-white p-6">
-            <h2 className="text-base font-bold text-navy-900 mb-4">Unterlagen anfragen</h2>
-            <div className="flex gap-2 mb-3">
-              <input value={newAnfrage} onChange={(e) => setNewAnfrage(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addAnfrage(); }}}
-                placeholder="z. B. Polizeiliches Führungszeugnis"
+            <h2 className="text-base font-bold text-navy-900 mb-1">Unterlagen anfordern</h2>
+            <p className="text-xs text-navy-500 mb-4">
+              Wähle die benötigten Dokumente aus. Klick auf „E-Mail senden" löst eine Email mit einem persönlichen Upload-Link aus.
+            </p>
+
+            {/* Predefined chips */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {DOKUMENT_VORSCHLAEGE.map((doc) => {
+                const on = selected.includes(doc);
+                return (
+                  <button key={doc} type="button" onClick={() => toggleChip(doc)}
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all ${
+                      on ? "border-red-austria bg-red-austria text-white" : "border-navy-200 bg-navy-50 text-navy-600 hover:border-navy-400"
+                    }`}>
+                    {on && <X className="h-3 w-3" />}
+                    {doc}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Custom doc */}
+            <div className="flex gap-2 mb-4">
+              <input value={customDoc} onChange={(e) => setCustomDoc(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustom(); }}}
+                placeholder="Eigenes Dokument hinzufügen …"
                 className="flex-1 rounded-lg border border-navy-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-400" />
-              <button onClick={addAnfrage}
-                className="inline-flex items-center gap-1 rounded-lg bg-red-austria px-3 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors">
+              <button onClick={addCustom}
+                className="inline-flex items-center gap-1 rounded-lg border border-navy-200 px-3 py-2 text-sm text-navy-600 hover:bg-navy-50 transition-colors">
                 <Plus className="h-4 w-4" /> Hinzufügen
               </button>
             </div>
-            {anfragen.length > 0 ? (
-              <ul className="space-y-2">
-                {anfragen.map((a) => (
-                  <li key={a} className="flex items-center gap-3 rounded-lg border border-orange-200 bg-orange-50 px-3 py-2">
-                    <Clock className="h-4 w-4 text-orange-500 flex-shrink-0" />
-                    <span className="flex-1 text-sm text-navy-700">{a}</span>
-                    <button onClick={() => removeAnfrage(a)} className="text-navy-300 hover:text-red-500 transition-colors">
-                      <X className="h-4 w-4" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-xs text-navy-400">Keine Unterlagen angefragt.</p>
-            )}
-            <p className="text-xs text-navy-400 mt-3">Änderungen werden beim Speichern (oben) gespeichert.</p>
-          </div>
-        </div>
 
-        {/* Right: Documents */}
-        <div className="space-y-6">
-          {/* Bewerber documents */}
-          <div className="rounded-2xl border border-navy-200 bg-white p-5">
-            <h2 className="text-base font-bold text-navy-900 mb-4">
-              Dokumente vom Bewerber
-              <span className="ml-2 text-xs font-normal text-navy-400">({bewerberDocs.length})</span>
-            </h2>
-            {bewerberDocs.length === 0 ? (
-              <p className="text-xs text-navy-400">Noch keine Dokumente hochgeladen.</p>
-            ) : (
-              <ul className="space-y-2">
-                {bewerberDocs.map((doc) => (
-                  <li key={doc.id} className="flex items-center gap-2 rounded-lg border border-navy-100 bg-navy-50 px-3 py-2">
-                    <DocIcon mime={doc.mime_type} />
-                    <span className="flex-1 truncate text-xs text-navy-700" title={doc.original_name}>{doc.original_name}</span>
-                    <span className="text-xs text-navy-400 flex-shrink-0">{formatSize(doc.groesse)}</span>
-                    <a href={publicUrl(doc.storage_path)} target="_blank" rel="noopener noreferrer"
-                      className="text-navy-300 hover:text-navy-700 transition-colors flex-shrink-0" title="Herunterladen">
-                      <Download className="h-3.5 w-3.5" />
-                    </a>
-                    <button onClick={() => deleteDoc(doc.id)}
-                      className="text-navy-300 hover:text-red-500 transition-colors flex-shrink-0" title="Löschen">
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          {/* Admin documents */}
-          <div className="rounded-2xl border border-navy-200 bg-white p-5">
-            <h2 className="text-base font-bold text-navy-900 mb-4">
-              Admin-Dokumente
-              <span className="ml-2 text-xs font-normal text-navy-400">({adminDocs.length})</span>
-            </h2>
-            {adminDocs.length > 0 && (
-              <ul className="space-y-2 mb-4">
-                {adminDocs.map((doc) => (
-                  <li key={doc.id} className="flex items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2">
-                    <DocIcon mime={doc.mime_type} />
-                    <span className="flex-1 truncate text-xs text-navy-700" title={doc.original_name}>{doc.original_name}</span>
-                    <span className="text-xs text-navy-400 flex-shrink-0">{formatSize(doc.groesse)}</span>
-                    <a href={publicUrl(doc.storage_path)} target="_blank" rel="noopener noreferrer"
-                      className="text-navy-300 hover:text-navy-700 transition-colors flex-shrink-0" title="Herunterladen">
-                      <Download className="h-3.5 w-3.5" />
-                    </a>
-                    <button onClick={() => deleteDoc(doc.id)}
-                      className="text-navy-300 hover:text-red-500 transition-colors flex-shrink-0" title="Löschen">
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
+            {/* Selected list */}
+            {selected.length > 0 && (
+              <div className="rounded-xl border border-orange-200 bg-orange-50 p-3 mb-4">
+                <p className="text-xs font-semibold text-orange-700 mb-2">Wird angefordert ({selected.length}):</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {selected.map((d) => (
+                    <span key={d} className="inline-flex items-center gap-1 rounded-full bg-white border border-orange-200 px-2.5 py-0.5 text-xs text-navy-700">
+                      <Clock className="h-3 w-3 text-orange-400" />
+                      {d}
+                      <button onClick={() => removeSelected(d)} className="text-navy-300 hover:text-red-500 ml-0.5 transition-colors">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
             )}
 
-            {/* Upload area */}
-            <div
-              className="rounded-xl border-2 border-dashed border-navy-200 bg-navy-50 p-4 text-center cursor-pointer hover:border-navy-400 transition-colors"
-              onClick={() => fileInputRef.current?.click()}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={async (e) => {
-                e.preventDefault();
-                const f = e.dataTransfer.files[0];
-                if (f && fileInputRef.current) {
-                  const dt = new DataTransfer();
-                  dt.items.add(f);
-                  fileInputRef.current.files = dt.files;
-                  await uploadAdminDoc({ target: fileInputRef.current } as React.ChangeEvent<HTMLInputElement>);
-                }
-              }}>
-              {uploading ? (
-                <Loader2 className="mx-auto h-6 w-6 animate-spin text-navy-400 mb-1" />
-              ) : (
-                <Plus className="mx-auto h-6 w-6 text-navy-300 mb-1" />
-              )}
-              <p className="text-xs text-navy-500">
-                {uploading ? "Wird hochgeladen …" : "Dokument hochladen"}
-              </p>
-              <p className="text-xs text-navy-400">PDF, JPG, PNG, DOC · max. 20 MB</p>
-              <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx"
-                className="hidden" onChange={uploadAdminDoc} />
-            </div>
-            {uploadError && (
-              <div className="mt-2 flex items-center gap-2 text-xs text-red-600">
-                <AlertCircle className="h-3.5 w-3.5" /> {uploadError}
+            {sendError && (
+              <div className="flex items-center gap-2 text-xs text-red-600 mb-3">
+                <AlertCircle className="h-4 w-4" /> {sendError}
+              </div>
+            )}
+
+            <button onClick={sendAnfrage} disabled={sending || !selected.length}
+              className="inline-flex items-center gap-2 rounded-lg bg-red-austria px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+              {sending ? "E-Mail wird gesendet …" : "Anforderungs-E-Mail senden"}
+            </button>
+
+            {/* Success result */}
+            {sendResult && (
+              <div className="mt-4 rounded-xl border border-green-200 bg-green-50 p-4 space-y-3">
+                <div className="flex items-center gap-2 text-sm font-semibold text-green-800">
+                  <CheckCircle2 className="h-4 w-4" />
+                  {sendResult.emailSent ? `E-Mail an ${bew.email} gesendet.` : "Link generiert (E-Mail-Versand nicht konfiguriert)."}
+                </div>
+                <div className="flex items-center gap-2">
+                  <LinkIcon className="h-4 w-4 text-navy-400 flex-shrink-0" />
+                  <a href={sendResult.portalUrl} target="_blank" rel="noopener noreferrer"
+                    className="flex-1 truncate text-xs text-red-austria hover:underline">{sendResult.portalUrl}</a>
+                  <button onClick={() => copyLink(sendResult.portalUrl)}
+                    className="inline-flex items-center gap-1 rounded-md border border-navy-200 px-2 py-1 text-xs text-navy-600 hover:bg-navy-50 transition-colors flex-shrink-0">
+                    <Copy className="h-3 w-3" />
+                    {copied ? "Kopiert!" : "Kopieren"}
+                  </button>
+                </div>
+                <p className="text-xs text-navy-500">Der Link ist 7 Tage gültig. Danach kann über dieses Panel ein neuer Link ausgestellt werden.</p>
               </div>
             )}
           </div>
+        </div>
+
+        {/* Right column – Documents */}
+        <div className="space-y-4">
+          <DocList docs={bewerberDocs} label="Vom Bewerber" color="border-navy-200 bg-white" />
+
+          {portalDocs.length > 0 && (
+            <DocList docs={portalDocs} label="Via Upload-Portal" color="border-blue-200 bg-blue-50" />
+          )}
+
+          <DocList docs={adminDocs} label="Admin-Dokumente" color="border-navy-200 bg-white" />
+
+          {/* Admin upload */}
+          <div className="rounded-2xl border-2 border-dashed border-navy-200 bg-navy-50 p-4 text-center cursor-pointer hover:border-navy-400 transition-colors"
+            onClick={() => fileInputRef.current?.click()}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={async (e) => {
+              e.preventDefault();
+              const f = e.dataTransfer.files[0];
+              if (f && fileInputRef.current) {
+                const dt = new DataTransfer(); dt.items.add(f);
+                fileInputRef.current.files = dt.files;
+                await uploadAdminDoc({ target: fileInputRef.current } as React.ChangeEvent<HTMLInputElement>);
+              }
+            }}>
+            {uploading ? <Loader2 className="mx-auto h-6 w-6 animate-spin text-navy-400 mb-1" />
+                       : <Plus className="mx-auto h-6 w-6 text-navy-300 mb-1" />}
+            <p className="text-xs text-navy-500">{uploading ? "Wird hochgeladen …" : "Admin-Dokument hochladen"}</p>
+            <p className="text-xs text-navy-400">PDF, JPG, PNG · max. 20 MB</p>
+            <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx"
+              className="hidden" onChange={uploadAdminDoc} />
+          </div>
+          {uploadError && (
+            <div className="flex items-center gap-2 text-xs text-red-600">
+              <AlertCircle className="h-3.5 w-3.5" /> {uploadError}
+            </div>
+          )}
         </div>
       </div>
     </div>
