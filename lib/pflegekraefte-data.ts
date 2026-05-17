@@ -22,7 +22,8 @@ export interface Pflegekraft {
   bio: string;
   skills: string[];
   availableFrom: string;
-  videoUrl?: string; // YouTube embed URL — wird nach HeyGen-Erstellung eingetragen
+  videoUrl?: string;
+  photoUrl?: string;
   avatarColor: string;
   documents: Document[];
 }

@@ -1,8 +1,11 @@
+export const dynamic = "force-dynamic";
+
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, MapPin, Briefcase, Languages, Star } from "lucide-react";
-import { pflegekraefte, phaseLabels, phaseColors } from "@/lib/pflegekraefte-data";
+import { readKandidatinnen } from "@/lib/data-store";
+import { phaseLabels, phaseColors } from "@/lib/pflegekraefte-data";
 import VideoEmbed from "@/components/VideoEmbed";
 import TrackBrief from "@/components/TrackBrief";
 
@@ -10,11 +13,8 @@ interface Props {
   params: { slug: string };
 }
 
-export async function generateStaticParams() {
-  return pflegekraefte.map((pk) => ({ slug: pk.slug }));
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const pflegekraefte = await readKandidatinnen();
   const pk = pflegekraefte.find((p) => p.slug === params.slug);
   if (!pk) return { title: "Nicht gefunden" };
   return {
@@ -23,7 +23,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function PflegekraftProfilePage({ params }: Props) {
+export default async function PflegekraftProfilePage({ params }: Props) {
+  const pflegekraefte = await readKandidatinnen();
   const pk = pflegekraefte.find((p) => p.slug === params.slug);
   if (!pk) notFound();
 

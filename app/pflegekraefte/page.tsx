@@ -1,6 +1,9 @@
+export const dynamic = "force-dynamic";
+
 import type { Metadata } from "next";
 import PflegekraftCard from "@/components/PflegekraftCard";
-import { pflegekraefte, phaseLabels } from "@/lib/pflegekraefte-data";
+import { readKandidatinnen } from "@/lib/data-store";
+import { phaseLabels } from "@/lib/pflegekraefte-data";
 import Link from "next/link";
 import { Users, ArrowRight, Filter } from "lucide-react";
 
@@ -17,7 +20,8 @@ const stats = [
   { value: "100%", label: "ÖSD-Kurs absolviert oder laufend" },
 ];
 
-export default function PflegekraeftePage() {
+export default async function PflegekraeftePage() {
+  const pflegekraefte = await readKandidatinnen();
   const byPhase = [1, 2, 3, 4] as const;
 
   return (

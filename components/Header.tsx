@@ -11,6 +11,7 @@ const navLinks = [
   { href: "/oeffentliche-traeger", label: "Öffentliche Träger" },
   { href: "/pflegekraefte", label: "Kandidatinnen" },
   { href: "/prozess-tracker", label: "Prozess-Tracker" },
+  { href: "/faq", label: "FAQ" },
   { href: "/kontakt", label: "Kontakt" },
 ];
 

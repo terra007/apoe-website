@@ -15,7 +15,7 @@ export default function PflegekraftCard({ pflegekraft: pk }: PflegekraftCardProp
   return (
     <div className="group rounded-2xl border border-navy-100 bg-white shadow-card hover:shadow-card-hover transition-all duration-200 overflow-hidden hover:-translate-y-0.5">
 
-      {/* Video / Thumbnail */}
+      {/* Video / Photo / Gradient Header */}
       {pk.videoUrl ? (
         <div
           className="relative h-48 bg-black overflow-hidden"
@@ -29,11 +29,20 @@ export default function PflegekraftCard({ pflegekraft: pk }: PflegekraftCardProp
             className="w-full h-full object-cover"
             aria-label={`Vorstellungsvideo ${pk.name}`}
           />
-          {/* Phase Badge */}
           <div className={`absolute top-3 left-3 badge ${colors.badge} text-xs font-semibold pointer-events-none`}>
             Phase {pk.currentPhase}
           </div>
         </div>
+      ) : pk.photoUrl ? (
+        <Link href={`/pflegekraefte/${pk.slug}`} aria-label={`Profil von ${pk.name} öffnen`} tabIndex={-1}>
+          <div className="relative h-48 overflow-hidden bg-navy-100">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={pk.photoUrl} alt={pk.name} className="w-full h-full object-cover object-top" />
+            <div className={`absolute top-3 left-3 badge ${colors.badge} text-xs font-semibold`}>
+              Phase {pk.currentPhase}
+            </div>
+          </div>
+        </Link>
       ) : (
         <Link href={`/pflegekraefte/${pk.slug}`} aria-label={`Profil von ${pk.name} öffnen`} tabIndex={-1}>
           <div className={`relative h-40 bg-gradient-to-br ${pk.avatarColor} flex items-center justify-center overflow-hidden`}>
