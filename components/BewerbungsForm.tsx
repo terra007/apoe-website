@@ -152,11 +152,7 @@ export default function BewerbungsForm({ t }: { t: FormT }) {
       <div className="rounded-xl border border-green-200 bg-green-50 p-8 text-center">
         <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-green-500" aria-hidden="true" />
         <h3 className="text-xl font-bold text-green-800 mb-2">{t.success.title}</h3>
-        <p className="text-green-700 mb-4">{t.success.text}</p>
-        <p className="text-sm text-green-600">
-          {t.success.emailNote}{" "}
-          <a href="mailto:office@apoesterreich.at" className="font-semibold underline">office@apoesterreich.at</a>
-        </p>
+        <p className="text-green-700">{t.success.text}</p>
       </div>
     );
   }
@@ -325,7 +321,6 @@ export default function BewerbungsForm({ t }: { t: FormT }) {
           </>
         ) : t.submit}
       </button>
-      <p className="text-xs text-navy-400 text-center">{t.emailNote}</p>
     </form>
   );
 }

@@ -150,7 +150,7 @@ const de: BewerberT = {
     sectionSubtitle: "Füllen Sie das Formular aus – wir melden uns innerhalb von 5 Werktagen.",
     sidebar: {
       contactTitle: "Direktkontakt",
-      emailNote: "Dokumente bitte per E-Mail einreichen, nachdem Sie das Formular ausgefüllt haben.",
+      emailNote: "",
       freeTitle: "Kostenlose Vermittlung",
       freeText: "Die Vermittlung durch APÖ ist für Bewerberinnen und Bewerber vollständig kostenlos.",
       languagesTitle: "Sprachen",
@@ -207,11 +207,11 @@ const de: BewerberT = {
       "Ich habe die Datenschutzerklärung gelesen und stimme der Verarbeitung meiner Daten zur Bearbeitung meiner Bewerbung zu. *",
     submit: "Bewerbung absenden",
     submitting: "Bewerbung wird übermittelt …",
-    emailNote: "Nach dem Absenden bitte Ihre Unterlagen per E-Mail an office@apoesterreich.at senden.",
+    emailNote: "",
     success: {
       title: "Bewerbung erfolgreich eingereicht!",
       text: "Vielen Dank für Ihre Bewerbung. Wir melden uns innerhalb von 5 Werktagen bei Ihnen.",
-      emailNote: "Bitte senden Sie Ihre Unterlagen auch per E-Mail an",
+      emailNote: "",
     },
     errors: {
       vorname: "Vorname erforderlich.",

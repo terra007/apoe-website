@@ -150,7 +150,7 @@ const en: BewerberT = {
     sectionSubtitle: "Fill in the form – we will get back to you within 5 business days.",
     sidebar: {
       contactTitle: "Direct Contact",
-      emailNote: "Please send your documents by email after completing the form.",
+      emailNote: "",
       freeTitle: "Free Placement Service",
       freeText: "Placement through APÖ is completely free of charge for all applicants.",
       languagesTitle: "Languages",
@@ -207,11 +207,11 @@ const en: BewerberT = {
       "I have read the privacy policy and consent to the processing of my data for the purpose of handling my application. *",
     submit: "Submit Application",
     submitting: "Submitting application …",
-    emailNote: "After submitting, please send your documents by email to office@apoesterreich.at.",
+    emailNote: "",
     success: {
       title: "Application submitted successfully!",
       text: "Thank you for your application. We will get back to you within 5 business days.",
-      emailNote: "Please also send your documents by email to",
+      emailNote: "",
     },
     errors: {
       vorname: "First name is required.",

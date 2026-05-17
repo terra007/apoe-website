@@ -187,7 +187,6 @@ export default function BewerberPageContent({ t }: { t: BewerberT }) {
                     <span className="text-red-austria">@</span>
                     office@apoesterreich.at
                   </a>
-                  <p className="text-navy-500 text-xs">{t.form.sidebar.emailNote}</p>
                 </div>
               </div>
               <div className="rounded-xl border border-green-200 bg-green-50 p-5">
