@@ -3,49 +3,7 @@
 import { useState, FormEvent } from "react";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import Link from "next/link";
-
-const AUSBILDUNGEN = [
-  "Pflegeassistenz (PA)",
-  "Pflegefachassistenz (PFA)",
-  "Diplomierte Gesundheits- und Krankenpflege (DGKP)",
-  "Heimhilfe",
-  "Sonstige Pflegeausbildung",
-];
-
-const ERFAHRUNGEN = [
-  "Unter 1 Jahr",
-  "1–3 Jahre",
-  "3–5 Jahre",
-  "Mehr als 5 Jahre",
-];
-
-const DEUTSCHNIVEAUS = [
-  "Noch keine Deutschkenntnisse",
-  "A1 – Einsteiger",
-  "A2 – Grundkenntnisse",
-  "B1 – Fortgeschritten",
-  "B2 – Selbstständige Sprachverwendung",
-  "C1 – Kompetente Sprachverwendung",
-];
-
-const VERFUEGBARKEITEN = [
-  "Sofort",
-  "In 3 Monaten",
-  "In 6 Monaten",
-  "In 12 oder mehr Monaten",
-];
-
-const DOKUMENTE_OPTIONS = [
-  "Lebenslauf (CV)",
-  "Pflegediplom / Ausbildungsnachweis",
-  "Lehrplan mit Stundenübersicht (Theorie & Praxis)",
-  "Deutschzertifikat (ÖSD, Goethe-Institut, telc oder ÖIF)",
-  "Polizeiliches Führungszeugnis (nicht älter als 3 Monate)",
-  "Reisepass (gültig, mind. 2 Jahre)",
-  "Lichtbild (aktuelles Passfoto)",
-  "Arbeitszeugnis(se) / Beschäftigungsnachweise",
-  "Geburtsurkunde",
-];
+import type { FormT } from "@/messages/bewerber/types";
 
 interface FormState {
   vorname: string;
@@ -60,10 +18,6 @@ interface FormState {
   dokumente: string[];
   nachricht: string;
   privacy: boolean;
-}
-
-interface Errors {
-  [key: string]: string;
 }
 
 const INITIAL: FormState = {
@@ -81,9 +35,9 @@ const INITIAL: FormState = {
   privacy: false,
 };
 
-export default function BewerbungsForm() {
+export default function BewerbungsForm({ t }: { t: FormT }) {
   const [form, setForm] = useState<FormState>(INITIAL);
-  const [errors, setErrors] = useState<Errors>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [serverError, setServerError] = useState("");
 
@@ -102,19 +56,19 @@ export default function BewerbungsForm() {
   }
 
   function validate(): boolean {
-    const e: Errors = {};
-    if (!form.vorname.trim()) e.vorname = "Vorname erforderlich.";
-    if (!form.nachname.trim()) e.nachname = "Nachname erforderlich.";
-    if (!form.email.trim()) e.email = "E-Mail erforderlich.";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Ungültige E-Mail-Adresse.";
-    if (!form.herkunftsland.trim()) e.herkunftsland = "Herkunftsland erforderlich.";
-    if (!form.ausbildung) e.ausbildung = "Bitte Ausbildung wählen.";
-    if (!form.erfahrung) e.erfahrung = "Bitte Erfahrung wählen.";
-    if (!form.deutschkenntnisse) e.deutschkenntnisse = "Bitte Sprachniveau wählen.";
-    if (!form.verfuegbarkeit) e.verfuegbarkeit = "Bitte Verfügbarkeit wählen.";
+    const e: Record<string, string> = {};
+    if (!form.vorname.trim()) e.vorname = t.errors.vorname;
+    if (!form.nachname.trim()) e.nachname = t.errors.nachname;
+    if (!form.email.trim()) e.email = t.errors.email;
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = t.errors.emailInvalid;
+    if (!form.herkunftsland.trim()) e.herkunftsland = t.errors.herkunftsland;
+    if (!form.ausbildung) e.ausbildung = t.errors.ausbildung;
+    if (!form.erfahrung) e.erfahrung = t.errors.erfahrung;
+    if (!form.deutschkenntnisse) e.deutschkenntnisse = t.errors.deutschkenntnisse;
+    if (!form.verfuegbarkeit) e.verfuegbarkeit = t.errors.verfuegbarkeit;
     if (!form.nachricht.trim() || form.nachricht.trim().length < 20)
-      e.nachricht = "Bitte mindestens 20 Zeichen eingeben.";
-    if (!form.privacy) e.privacy = "Datenschutzerklärung muss akzeptiert werden.";
+      e.nachricht = t.errors.nachricht;
+    if (!form.privacy) e.privacy = t.errors.privacy;
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -124,7 +78,6 @@ export default function BewerbungsForm() {
     if (!validate()) return;
     setStatus("loading");
     setServerError("");
-
     try {
       const res = await fetch("/api/bewerber", {
         method: "POST",
@@ -133,14 +86,14 @@ export default function BewerbungsForm() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setServerError(data.error ?? "Ein Fehler ist aufgetreten.");
+        setServerError(data.error ?? t.errors.serverDefault);
         setStatus("error");
       } else {
         setStatus("success");
         setForm(INITIAL);
       }
     } catch {
-      setServerError("Netzwerkfehler. Bitte versuchen Sie es erneut.");
+      setServerError(t.errors.network);
       setStatus("error");
     }
   }
@@ -149,12 +102,10 @@ export default function BewerbungsForm() {
     return (
       <div className="rounded-xl border border-green-200 bg-green-50 p-8 text-center">
         <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-green-500" aria-hidden="true" />
-        <h3 className="text-xl font-bold text-green-800 mb-2">Bewerbung erfolgreich eingereicht!</h3>
-        <p className="text-green-700 mb-4">
-          Vielen Dank für Ihre Bewerbung. Wir melden uns innerhalb von 5 Werktagen bei Ihnen.
-        </p>
+        <h3 className="text-xl font-bold text-green-800 mb-2">{t.success.title}</h3>
+        <p className="text-green-700 mb-4">{t.success.text}</p>
         <p className="text-sm text-green-600">
-          Bitte senden Sie Ihre Unterlagen auch per E-Mail an{" "}
+          {t.success.emailNote}{" "}
           <a href="mailto:office@apoesterreich.at" className="font-semibold underline">
             office@apoesterreich.at
           </a>
@@ -177,11 +128,11 @@ export default function BewerbungsForm() {
       {/* Persönliche Daten */}
       <fieldset>
         <legend className="text-base font-bold text-navy-900 mb-4 pb-2 border-b border-navy-100 w-full">
-          Persönliche Daten
+          {t.sectionPersonal}
         </legend>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="vorname" className={labelClass}>Vorname *</label>
+            <label htmlFor="vorname" className={labelClass}>{t.fields.vorname.label}</label>
             <input
               id="vorname"
               type="text"
@@ -189,12 +140,12 @@ export default function BewerbungsForm() {
               value={form.vorname}
               onChange={(e) => set("vorname", e.target.value)}
               className={inputClass("vorname")}
-              placeholder="z. B. Malee"
+              placeholder={t.fields.vorname.placeholder}
             />
             {errors.vorname && <p className="mt-1 text-xs text-red-600">{errors.vorname}</p>}
           </div>
           <div>
-            <label htmlFor="nachname" className={labelClass}>Nachname *</label>
+            <label htmlFor="nachname" className={labelClass}>{t.fields.nachname.label}</label>
             <input
               id="nachname"
               type="text"
@@ -202,12 +153,12 @@ export default function BewerbungsForm() {
               value={form.nachname}
               onChange={(e) => set("nachname", e.target.value)}
               className={inputClass("nachname")}
-              placeholder="z. B. Wongsiri"
+              placeholder={t.fields.nachname.placeholder}
             />
             {errors.nachname && <p className="mt-1 text-xs text-red-600">{errors.nachname}</p>}
           </div>
           <div>
-            <label htmlFor="email" className={labelClass}>E-Mail *</label>
+            <label htmlFor="email" className={labelClass}>{t.fields.email.label}</label>
             <input
               id="email"
               type="email"
@@ -215,12 +166,12 @@ export default function BewerbungsForm() {
               value={form.email}
               onChange={(e) => set("email", e.target.value)}
               className={inputClass("email")}
-              placeholder="name@beispiel.com"
+              placeholder={t.fields.email.placeholder}
             />
             {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
           </div>
           <div>
-            <label htmlFor="telefon" className={labelClass}>Telefon / WhatsApp</label>
+            <label htmlFor="telefon" className={labelClass}>{t.fields.telefon.label}</label>
             <input
               id="telefon"
               type="tel"
@@ -228,18 +179,18 @@ export default function BewerbungsForm() {
               value={form.telefon}
               onChange={(e) => set("telefon", e.target.value)}
               className={inputClass("telefon")}
-              placeholder="+66 81 234 5678"
+              placeholder={t.fields.telefon.placeholder}
             />
           </div>
           <div className="sm:col-span-2">
-            <label htmlFor="herkunftsland" className={labelClass}>Herkunftsland *</label>
+            <label htmlFor="herkunftsland" className={labelClass}>{t.fields.herkunftsland.label}</label>
             <input
               id="herkunftsland"
               type="text"
               value={form.herkunftsland}
               onChange={(e) => set("herkunftsland", e.target.value)}
               className={inputClass("herkunftsland")}
-              placeholder="z. B. Thailand"
+              placeholder={t.fields.herkunftsland.placeholder}
             />
             {errors.herkunftsland && <p className="mt-1 text-xs text-red-600">{errors.herkunftsland}</p>}
           </div>
@@ -249,66 +200,58 @@ export default function BewerbungsForm() {
       {/* Berufliches Profil */}
       <fieldset>
         <legend className="text-base font-bold text-navy-900 mb-4 pb-2 border-b border-navy-100 w-full">
-          Berufliches Profil
+          {t.sectionProfessional}
         </legend>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="ausbildung" className={labelClass}>Pflegeausbildung *</label>
+            <label htmlFor="ausbildung" className={labelClass}>{t.fields.ausbildung.label}</label>
             <select
               id="ausbildung"
               value={form.ausbildung}
               onChange={(e) => set("ausbildung", e.target.value)}
               className={inputClass("ausbildung")}
             >
-              <option value="">Bitte wählen …</option>
-              {AUSBILDUNGEN.map((a) => (
-                <option key={a} value={a}>{a}</option>
-              ))}
+              <option value="">{t.fields.ausbildung.placeholder}</option>
+              {t.ausbildungen.map((a) => <option key={a} value={a}>{a}</option>)}
             </select>
             {errors.ausbildung && <p className="mt-1 text-xs text-red-600">{errors.ausbildung}</p>}
           </div>
           <div>
-            <label htmlFor="erfahrung" className={labelClass}>Berufserfahrung *</label>
+            <label htmlFor="erfahrung" className={labelClass}>{t.fields.erfahrung.label}</label>
             <select
               id="erfahrung"
               value={form.erfahrung}
               onChange={(e) => set("erfahrung", e.target.value)}
               className={inputClass("erfahrung")}
             >
-              <option value="">Bitte wählen …</option>
-              {ERFAHRUNGEN.map((e) => (
-                <option key={e} value={e}>{e}</option>
-              ))}
+              <option value="">{t.fields.erfahrung.placeholder}</option>
+              {t.erfahrungen.map((e) => <option key={e} value={e}>{e}</option>)}
             </select>
             {errors.erfahrung && <p className="mt-1 text-xs text-red-600">{errors.erfahrung}</p>}
           </div>
           <div>
-            <label htmlFor="deutschkenntnisse" className={labelClass}>Deutschkenntnisse *</label>
+            <label htmlFor="deutschkenntnisse" className={labelClass}>{t.fields.deutschkenntnisse.label}</label>
             <select
               id="deutschkenntnisse"
               value={form.deutschkenntnisse}
               onChange={(e) => set("deutschkenntnisse", e.target.value)}
               className={inputClass("deutschkenntnisse")}
             >
-              <option value="">Bitte wählen …</option>
-              {DEUTSCHNIVEAUS.map((n) => (
-                <option key={n} value={n}>{n}</option>
-              ))}
+              <option value="">{t.fields.deutschkenntnisse.placeholder}</option>
+              {t.deutschniveaus.map((n) => <option key={n} value={n}>{n}</option>)}
             </select>
             {errors.deutschkenntnisse && <p className="mt-1 text-xs text-red-600">{errors.deutschkenntnisse}</p>}
           </div>
           <div>
-            <label htmlFor="verfuegbarkeit" className={labelClass}>Verfügbarkeit *</label>
+            <label htmlFor="verfuegbarkeit" className={labelClass}>{t.fields.verfuegbarkeit.label}</label>
             <select
               id="verfuegbarkeit"
               value={form.verfuegbarkeit}
               onChange={(e) => set("verfuegbarkeit", e.target.value)}
               className={inputClass("verfuegbarkeit")}
             >
-              <option value="">Bitte wählen …</option>
-              {VERFUEGBARKEITEN.map((v) => (
-                <option key={v} value={v}>{v}</option>
-              ))}
+              <option value="">{t.fields.verfuegbarkeit.placeholder}</option>
+              {t.verfuegbarkeiten.map((v) => <option key={v} value={v}>{v}</option>)}
             </select>
             {errors.verfuegbarkeit && <p className="mt-1 text-xs text-red-600">{errors.verfuegbarkeit}</p>}
           </div>
@@ -318,17 +261,17 @@ export default function BewerbungsForm() {
       {/* Dokumente */}
       <fieldset>
         <legend className="text-base font-bold text-navy-900 mb-1 pb-2 border-b border-navy-100 w-full">
-          Welche Dokumente liegen Ihnen bereits vor?
+          {t.sectionDocuments}
         </legend>
-        <p className="text-xs text-navy-500 mb-4">Mehrfachauswahl möglich – kein Pflichtfeld.</p>
+        <p className="text-xs text-navy-500 mb-4">{t.sectionDocumentsSubtitle}</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {DOKUMENTE_OPTIONS.map((doc) => (
+          {t.dokumenteOptions.map((doc) => (
             <label key={doc} className="flex items-start gap-3 cursor-pointer group">
               <input
                 type="checkbox"
                 checked={form.dokumente.includes(doc)}
                 onChange={() => toggleDokument(doc)}
-                className="mt-0.5 h-4 w-4 rounded border-navy-300 text-red-austria focus:ring-red-austria accent-red-austria"
+                className="mt-0.5 h-4 w-4 rounded border-navy-300 accent-red-austria"
               />
               <span className="text-sm text-navy-700 group-hover:text-navy-900 transition-colors leading-snug">
                 {doc}
@@ -341,19 +284,17 @@ export default function BewerbungsForm() {
       {/* Kurzvorstellung */}
       <fieldset>
         <legend className="text-base font-bold text-navy-900 mb-4 pb-2 border-b border-navy-100 w-full">
-          Kurzvorstellung
+          {t.sectionMotivation}
         </legend>
         <div>
-          <label htmlFor="nachricht" className={labelClass}>
-            Erzählen Sie uns etwas über sich *
-          </label>
+          <label htmlFor="nachricht" className={labelClass}>{t.fields.nachricht.label}</label>
           <textarea
             id="nachricht"
             rows={5}
             value={form.nachricht}
             onChange={(e) => set("nachricht", e.target.value)}
             className={`${inputClass("nachricht")} resize-y`}
-            placeholder="Warum möchten Sie in Österreich arbeiten? Was motiviert Sie in der Pflege? Welche Erfahrungen haben Sie gesammelt?"
+            placeholder={t.fields.nachricht.placeholder}
           />
           <div className="mt-1 flex justify-between">
             {errors.nachricht
@@ -374,11 +315,10 @@ export default function BewerbungsForm() {
             className="mt-0.5 h-4 w-4 rounded border-navy-300 accent-red-austria"
           />
           <span className="text-sm text-navy-600">
-            Ich habe die{" "}
             <Link href="/datenschutz" className="text-red-austria underline hover:text-red-austria-dark" target="_blank">
-              Datenschutzerklärung
-            </Link>{" "}
-            gelesen und stimme der Verarbeitung meiner Daten zur Bearbeitung meiner Bewerbung zu. *
+              {/* privacy text includes the link text – we split on the linked word */}
+            </Link>
+            {t.privacy}
           </span>
         </label>
         {errors.privacy && <p className="mt-1 text-xs text-red-600">{errors.privacy}</p>}
@@ -400,20 +340,14 @@ export default function BewerbungsForm() {
         {status === "loading" ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin mr-2" aria-hidden="true" />
-            Bewerbung wird übermittelt …
+            {t.submitting}
           </>
         ) : (
-          "Bewerbung absenden"
+          t.submit
         )}
       </button>
 
-      <p className="text-xs text-navy-400 text-center">
-        Nach dem Absenden bitte Ihre Unterlagen per E-Mail an{" "}
-        <a href="mailto:office@apoesterreich.at" className="text-navy-600 underline">
-          office@apoesterreich.at
-        </a>{" "}
-        senden.
-      </p>
+      <p className="text-xs text-navy-400 text-center">{t.emailNote}</p>
     </form>
   );
 }
