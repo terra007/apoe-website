@@ -11,12 +11,13 @@ import VideoEmbed from "@/components/VideoEmbed";
 import TrackBrief from "@/components/TrackBrief";
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
   const pflegekraefte = await readKandidatinnen();
-  const pk = pflegekraefte.find((p) => p.slug === params.slug);
+  const pk = pflegekraefte.find((p) => p.slug === slug);
   if (!pk) return { title: "Nicht gefunden" };
   return {
     title: `${pk.name} – ${pk.specialization}`,
@@ -25,8 +26,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function PflegekraftProfilePage({ params }: Props) {
+  const { slug } = await params;
   const pflegekraefte = await readKandidatinnen();
-  const pk = pflegekraefte.find((p) => p.slug === params.slug);
+  const pk = pflegekraefte.find((p) => p.slug === slug);
   if (!pk) notFound();
 
   const initials = pk.name.split(" ").map((n) => n[0]).join("").slice(0, 2);

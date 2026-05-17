@@ -5,11 +5,12 @@ import { getKandidatin } from "@/lib/data-store";
 import KandidatinForm from "../KandidatinForm";
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export default async function EditPage({ params }: Props) {
-  const kandidatin = await getKandidatin(params.slug);
+  const { slug } = await params;
+  const kandidatin = await getKandidatin(slug);
   if (!kandidatin) notFound();
 
   return <KandidatinForm existing={kandidatin} />;

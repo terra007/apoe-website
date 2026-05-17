@@ -3,7 +3,7 @@ import type { Pflegekraft } from "./pflegekraefte-data";
 export { generateSlug } from "./slug";
 
 export async function readKandidatinnen(): Promise<Pflegekraft[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("kandidatinnen")
     .select("slug, data, created_at")
@@ -13,7 +13,7 @@ export async function readKandidatinnen(): Promise<Pflegekraft[]> {
 }
 
 export async function getKandidatin(slug: string): Promise<Pflegekraft | undefined> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("kandidatinnen")
     .select("slug, data")
@@ -24,7 +24,7 @@ export async function getKandidatin(slug: string): Promise<Pflegekraft | undefin
 }
 
 export async function createKandidatin(kandidatin: Pflegekraft): Promise<{ ok: true } | { ok: false; error: string }> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("kandidatinnen")
     .insert({ slug: kandidatin.slug, data: kandidatin });
@@ -33,7 +33,7 @@ export async function createKandidatin(kandidatin: Pflegekraft): Promise<{ ok: t
 }
 
 export async function updateKandidatin(slug: string, kandidatin: Pflegekraft): Promise<{ ok: true } | { ok: false; error: string }> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("kandidatinnen")
     .update({ data: kandidatin, slug: kandidatin.slug })
@@ -43,7 +43,7 @@ export async function updateKandidatin(slug: string, kandidatin: Pflegekraft): P
 }
 
 export async function deleteKandidatin(slug: string): Promise<{ ok: true } | { ok: false; error: string }> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("kandidatinnen")
     .delete()

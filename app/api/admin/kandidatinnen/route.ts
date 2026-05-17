@@ -4,7 +4,7 @@ import { createKandidatin } from "@/lib/data-store";
 import type { Pflegekraft } from "@/lib/pflegekraefte-data";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "Nicht autorisiert." }, { status: 401 });

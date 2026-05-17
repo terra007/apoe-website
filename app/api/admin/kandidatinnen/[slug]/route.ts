@@ -4,11 +4,11 @@ import { updateKandidatin, deleteKandidatin } from "@/lib/data-store";
 import type { Pflegekraft } from "@/lib/pflegekraefte-data";
 
 interface Params {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function PUT(request: NextRequest, { params }: Params): Promise<NextResponse> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "Nicht autorisiert." }, { status: 401 });
@@ -26,7 +26,8 @@ export async function PUT(request: NextRequest, { params }: Params): Promise<Nex
     return NextResponse.json({ error: "Pflichtfeld fehlt (name)." }, { status: 400 });
   }
 
-  const result = await updateKandidatin(params.slug, kandidatin);
+  const { slug } = await params;
+  const result = await updateKandidatin(slug, kandidatin);
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: 500 });
   }
@@ -35,13 +36,14 @@ export async function PUT(request: NextRequest, { params }: Params): Promise<Nex
 }
 
 export async function DELETE(_: NextRequest, { params }: Params): Promise<NextResponse> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "Nicht autorisiert." }, { status: 401 });
   }
 
-  const result = await deleteKandidatin(params.slug);
+  const { slug } = await params;
+  const result = await deleteKandidatin(slug);
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: 500 });
   }
