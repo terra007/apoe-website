@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { Eye, Trash2 } from "lucide-react";
+import { Eye } from "lucide-react";
+import BewerbungDeleteButton from "./BewerbungDeleteButton";
 
 export const dynamic = "force-dynamic";
 
@@ -141,26 +142,5 @@ export default async function BewerbungenPage() {
         </div>
       )}
     </div>
-  );
-}
-
-// Inline client delete button to avoid extra file
-function BewerbungDeleteButton({ id, name }: { id: string; name: string }) {
-  // Server-side: render a form for progressive enhancement
-  return (
-    <form action={`/api/admin/bewerbungen/${id}`} method="DELETE"
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (!confirm(`Bewerbung von ${name} wirklich löschen?`)) return;
-        fetch(`/api/admin/bewerbungen/${id}`, { method: "DELETE" })
-          .then(() => window.location.reload());
-      }}
-      className="inline">
-      <button type="submit"
-        className="rounded-md p-1.5 text-navy-400 hover:bg-red-50 hover:text-red-600 transition-colors"
-        title="Löschen">
-        <Trash2 className="h-4 w-4" />
-      </button>
-    </form>
   );
 }
