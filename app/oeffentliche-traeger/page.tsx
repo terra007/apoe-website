@@ -24,7 +24,7 @@ const benefits = [
     icon: ShieldCheck,
     title: "Rechtssicherheit & Compliance",
     description:
-      "Vollständige Konformität mit AÜG, AuslBG und Kollektivverträgen. Alle Schritte werden von spezialisierten Rechtsanwälten begleitet. Keine rechtlichen Risiken für Ihre Einrichtung.",
+      "Vollständige Konformität mit GewO, AuslBG und Kollektivverträgen. Alle Schritte werden von spezialisierten Rechtsanwälten begleitet. Keine rechtlichen Risiken für Ihre Einrichtung.",
   },
   {
     icon: Calendar,

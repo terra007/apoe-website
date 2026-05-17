@@ -49,13 +49,13 @@ export default function ImpressumPage() {
                 <strong>UID-Nummer:</strong> ATU00000000
               </p>
               <p>
-                <strong>Gewerbe:</strong> Arbeitsvermittlung / Arbeitskräfteüberlassung
+                <strong>Gewerbe:</strong> Gewerbliche Arbeitsvermittlung
               </p>
               <p>
                 <strong>Gewerbebehörde:</strong> Magistratisches Bezirksamt 1010 Wien
               </p>
               <p>
-                <strong>Konzession/Reg.-Nr.:</strong> AÜG AT-2024-0001
+                <strong>Gewerbeschein-Nr.:</strong> GWO AT-2024-0001
               </p>
             </div>
           </section>
@@ -104,7 +104,7 @@ export default function ImpressumPage() {
               Anwendbare Rechtsvorschriften
             </h2>
             <ul className="text-sm space-y-1 list-disc pl-5">
-              <li>Arbeitskräfteüberlassungsgesetz (AÜG), BGBl. Nr. 196/1988 i.d.g.F.</li>
+              <li>Gewerbeordnung 1994 (GewO), BGBl. Nr. 194/1994 i.d.g.F.</li>
               <li>Ausländerbeschäftigungsgesetz (AuslBG), BGBl. Nr. 218/1975 i.d.g.F.</li>
               <li>Gewerbeordnung 1994 (GewO 1994), BGBl. Nr. 194/1994 i.d.g.F.</li>
               <li>Gesundheits- und Krankenpflegegesetz (GuKG), BGBl. I Nr. 108/1997 i.d.g.F.</li>

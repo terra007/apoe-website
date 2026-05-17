@@ -110,7 +110,7 @@ export default function Footer() {
           <div className="flex items-center gap-4 text-xs text-navy-400">
             <span>Behördlich konzessioniertes Arbeitsvermittlungsunternehmen</span>
             <span className="h-3 w-px bg-navy-600" />
-            <span>Reg.Nr. AÜG AT-2024-0001</span>
+            <span>Gewerbeschein-Nr. GWO AT-2024-0001</span>
           </div>
         </div>
       </div>

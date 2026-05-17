@@ -72,7 +72,7 @@ export default function HeroSection() {
           <div className="mt-6 flex items-start gap-2 text-xs text-navy-300 sm:text-sm">
             <FileCheck className="h-4 w-4 text-green-400 flex-shrink-0 mt-0.5" />
             <span>
-              Konzessioniertes Arbeitsvermittlungsunternehmen gemäß AÜG · AMS-geprüft
+              Konzessioniertes Arbeitsvermittlungsunternehmen gemäß GewO · AMS-geprüft
             </span>
           </div>
         </div>

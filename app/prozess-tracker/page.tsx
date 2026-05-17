@@ -104,6 +104,6 @@ const faqs = [
   },
   {
     q: "Ist das Verfahren mit der österreichischen Gewerbebehörde konform?",
-    a: "Ja. APÖ verfügt über die erforderliche Konzession für gewerbliche Arbeitsvermittlung gemäß Arbeitskräfteüberlassungsgesetz (AÜG) und operiert unter Aufsicht des Arbeitsinspektorats. Alle Prozesse wurden von der Wirtschaftskammer Österreich (WKO) und spezialisierten Arbeitsrechtskanzleien geprüft.",
+    a: "Ja. APÖ verfügt über die erforderliche Konzession für gewerbliche Arbeitsvermittlung gemäß Gewerbeordnung (GewO 1994) und operiert unter Aufsicht des AMS. Alle Prozesse wurden von der Wirtschaftskammer Österreich (WKO) und spezialisierten Arbeitsrechtskanzleien geprüft.",
   },
 ];

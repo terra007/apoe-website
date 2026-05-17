@@ -97,7 +97,7 @@ const faqs: {
     category: "recht",
     question: "Wie sind die Pflegekräfte angestellt – bei APÖ oder bei meiner Einrichtung?",
     answer:
-      "Das hängt vom gewählten Modell ab. In der Regel werden die Pflegekräfte direkt bei Ihrer Einrichtung angestellt und erhalten einen österreichischen Arbeitsvertrag gemäß dem relevanten Kollektivvertrag (z. B. SWÖ-KV oder Gemeindebedienstetengesetz). APÖ tritt dabei als Dienstleister für den Vermittlungs- und Integrationsprozess auf, nicht als Arbeitgeber. Alternativ ist auch ein Arbeitskräfteüberlassungsmodell gemäß AÜG möglich.",
+      "Die Pflegekräfte werden direkt bei Ihrer Einrichtung angestellt und erhalten einen österreichischen Arbeitsvertrag gemäß dem relevanten Kollektivvertrag (z. B. SWÖ-KV oder Gemeindebedienstetengesetz). APÖ tritt als Arbeitsvermittler auf und begleitet den gesamten Prozess – die Beschäftigung liegt von Anfang an bei Ihrer Einrichtung, nicht bei APÖ.",
   },
   {
     category: "recht",

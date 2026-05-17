@@ -17,7 +17,7 @@ const trustPoints = [
     icon: Scale,
     title: "Österreichisches Arbeitsrecht",
     description:
-      "Vollständige Konformität mit AÜG, AuslBG und den Kollektivverträgen des Gesundheits- und Sozialbereichs. Begleitung durch Arbeitsrechtskanzleien.",
+      "Vollständige Konformität mit GewO, AuslBG und den Kollektivverträgen des Gesundheits- und Sozialbereichs. Begleitung durch Arbeitsrechtskanzleien.",
   },
   {
     icon: HandshakeIcon,
