@@ -1,20 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { bewerberRatelimit } from "@/lib/ratelimit";
-
-interface BewerbungPayload {
-  vorname: string;
-  nachname: string;
-  email: string;
-  telefon?: string;
-  herkunftsland: string;
-  ausbildung: string;
-  erfahrung: string;
-  deutschkenntnisse: string;
-  verfuegbarkeit: string;
-  dokumente: string[];
-  nachricht: string;
-  privacy: boolean;
-}
+import { createClient } from "@/lib/supabase/server";
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -42,75 +28,52 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "Ungültiges Format." }, { status: 400 });
   }
 
-  const payload = body as Partial<BewerbungPayload>;
+  const p = body as Record<string, unknown>;
 
-  const vorname = sanitize(payload.vorname);
-  const nachname = sanitize(payload.nachname);
-  const email = sanitize(payload.email);
-  const telefon = sanitize(payload.telefon);
-  const herkunftsland = sanitize(payload.herkunftsland);
-  const ausbildung = sanitize(payload.ausbildung);
-  const erfahrung = sanitize(payload.erfahrung);
-  const deutschkenntnisse = sanitize(payload.deutschkenntnisse);
-  const verfuegbarkeit = sanitize(payload.verfuegbarkeit);
-  const dokumente = Array.isArray(payload.dokumente)
-    ? payload.dokumente.filter((d) => typeof d === "string").map((d) => sanitize(d))
+  const vorname           = sanitize(p.vorname);
+  const nachname          = sanitize(p.nachname);
+  const email             = sanitize(p.email);
+  const telefon           = sanitize(p.telefon);
+  const herkunftsland     = sanitize(p.herkunftsland);
+  const ausbildung        = sanitize(p.ausbildung);
+  const erfahrung         = sanitize(p.erfahrung);
+  const deutschkenntnisse = sanitize(p.deutschkenntnisse);
+  const verfuegbarkeit    = sanitize(p.verfuegbarkeit);
+  const nachricht         = sanitize(p.nachricht);
+  const vorhandene_dokumente = Array.isArray(p.dokumente)
+    ? (p.dokumente as unknown[]).filter((d) => typeof d === "string").map((d) => sanitize(d as string))
     : [];
-  const nachricht = sanitize(payload.nachricht);
 
   if (!vorname || !nachname || !email || !herkunftsland || !ausbildung || !erfahrung || !deutschkenntnisse || !verfuegbarkeit || !nachricht) {
     return NextResponse.json({ error: "Pflichtfelder fehlen." }, { status: 400 });
   }
-
   if (!isValidEmail(email)) {
     return NextResponse.json({ error: "Ungültige E-Mail-Adresse." }, { status: 400 });
   }
-
-  if (!payload.privacy) {
+  if (!p.privacy) {
     return NextResponse.json({ error: "Datenschutzzustimmung erforderlich." }, { status: 400 });
   }
-
   if (nachricht.length < 20) {
     return NextResponse.json({ error: "Kurzvorstellung zu kurz (min. 20 Zeichen)." }, { status: 400 });
   }
 
-  // --- E-Mail-Versand via Resend (konfigurierbar) ---
-  // import { Resend } from "resend";
-  // const resend = new Resend(process.env.RESEND_API_KEY);
-  // await resend.emails.send({
-  //   from: "APÖ Bewerbungseingang <noreply@apoesterreich.at>",
-  //   to: [process.env.CONTACT_EMAIL_TO ?? "office@apoesterreich.at"],
-  //   replyTo: email,
-  //   subject: `APÖ Bewerbung: ${vorname} ${nachname} – ${ausbildung} (${herkunftsland})`,
-  //   text: `
-  //     Name: ${vorname} ${nachname}
-  //     E-Mail: ${email}
-  //     Telefon: ${telefon || "–"}
-  //     Herkunftsland: ${herkunftsland}
-  //     Ausbildung: ${ausbildung}
-  //     Berufserfahrung: ${erfahrung}
-  //     Deutschkenntnisse: ${deutschkenntnisse}
-  //     Verfügbarkeit: ${verfuegbarkeit}
-  //     Vorhandene Dokumente: ${dokumente.join(", ") || "–"}
-  //     Kurzvorstellung: ${nachricht}
-  //   `,
-  // });
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("bewerbungen")
+    .insert({
+      vorname, nachname, email, telefon: telefon || null,
+      herkunftsland, ausbildung, erfahrung,
+      deutschkenntnisse, verfuegbarkeit, nachricht,
+      vorhandene_dokumente, status: "neu",
+    })
+    .select("id")
+    .single();
 
-  console.info("[APÖ Bewerbung]", {
-    timestamp: new Date().toISOString(),
-    name: `${vorname} ${nachname}`,
-    email,
-    herkunftsland,
-    ausbildung,
-    erfahrung,
-    deutschkenntnisse,
-    verfuegbarkeit,
-    dokumente,
-    nachrichtLength: nachricht.length,
-  });
+  if (error || !data) {
+    console.error("[APÖ Bewerbung] DB error:", error);
+    return NextResponse.json({ error: "Bewerbung konnte nicht gespeichert werden." }, { status: 500 });
+  }
 
-  return NextResponse.json(
-    { success: true, message: "Ihre Bewerbung wurde erfolgreich übermittelt." },
-    { status: 200 }
-  );
+  console.info("[APÖ Bewerbung] created:", data.id, email);
+  return NextResponse.json({ success: true, id: data.id }, { status: 201 });
 }
