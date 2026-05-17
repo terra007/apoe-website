@@ -21,8 +21,25 @@ const stats = [
 ];
 
 export default async function PflegekraeftePage() {
-  const pflegekraefte = await readKandidatinnen();
+  let pflegekraefte: Awaited<ReturnType<typeof readKandidatinnen>> = [];
+  let dbError: string | null = null;
+  try {
+    pflegekraefte = await readKandidatinnen();
+  } catch (e) {
+    dbError = e instanceof Error ? e.message : String(e);
+  }
   const byPhase = [1, 2, 3, 4] as const;
+
+  if (dbError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-8">
+        <div className="max-w-lg rounded-2xl border border-red-200 bg-red-50 p-6">
+          <h2 className="text-lg font-bold text-red-800 mb-2">Datenbankfehler</h2>
+          <pre className="text-sm text-red-700 whitespace-pre-wrap break-all">{dbError}</pre>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
