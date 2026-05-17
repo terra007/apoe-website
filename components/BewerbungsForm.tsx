@@ -102,9 +102,10 @@ export default function BewerbungsForm({ t }: { t: FormT }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, dokumente: form.dokumente }),
       });
-      const data = await res.json();
-      if (!res.ok) { setServerError(data.error ?? t.errors.serverDefault); setStatus("error"); return; }
-      bewerbungId = data.id;
+      let data: Record<string, unknown> = {};
+      try { data = await res.json(); } catch { /* non-JSON body */ }
+      if (!res.ok) { setServerError((data.error as string) ?? t.errors.serverDefault); setStatus("error"); return; }
+      bewerbungId = data.id as string;
     } catch {
       setServerError(t.errors.network);
       setStatus("error");

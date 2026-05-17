@@ -13,12 +13,17 @@ function sanitize(value: unknown): string {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anonymous";
-  const { success } = await bewerberRatelimit.limit(ip);
-  if (!success) {
-    return NextResponse.json(
-      { error: "Zu viele Anfragen. Bitte warten Sie einige Minuten." },
-      { status: 429 }
-    );
+  try {
+    const { success } = await bewerberRatelimit.limit(ip);
+    if (!success) {
+      return NextResponse.json(
+        { error: "Zu viele Anfragen. Bitte warten Sie einige Minuten." },
+        { status: 429 }
+      );
+    }
+  } catch (e) {
+    console.warn("[APÖ] Ratelimit unavailable:", e);
+    // Allow through if Redis is unreachable
   }
 
   let body: unknown;
