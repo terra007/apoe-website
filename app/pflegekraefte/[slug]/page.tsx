@@ -62,9 +62,20 @@ export default async function PflegekraftProfilePage({ params }: Props) {
           </Link>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-            {/* Avatar */}
-            <div className="flex h-20 w-20 sm:h-24 sm:w-24 flex-shrink-0 items-center justify-center rounded-2xl bg-white/20 border-2 border-white/30 text-3xl font-bold text-white">
-              {initials}
+            {/* Avatar / Photo */}
+            <div className="flex-shrink-0 h-20 w-20 sm:h-24 sm:w-24 rounded-2xl border-2 border-white/30 overflow-hidden">
+              {pk.photoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={pk.photoUrl}
+                  alt={pk.name}
+                  className="h-full w-full object-cover object-top"
+                />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center bg-white/20 text-3xl font-bold text-white">
+                  {initials}
+                </div>
+              )}
             </div>
 
             {/* Name & Info */}
