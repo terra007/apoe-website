@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Shield } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import ApoLogo from "./ApoLogo";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -25,9 +26,7 @@ export default function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-red-austria">
-              <Shield className="h-5 w-5 text-white" aria-hidden="true" />
-            </div>
+            <ApoLogo className="h-9 w-9" />
             <div className="flex flex-col leading-tight">
               <span className="text-base font-bold text-white tracking-tight">
                 APÖ

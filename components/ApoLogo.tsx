@@ -1,0 +1,21 @@
+export default function ApoLogo({ className = "h-9 w-9" }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 36 36"
+      className={className}
+      aria-label="APÖ Logo"
+      role="img"
+    >
+      <rect width="36" height="36" rx="8" fill="#CC0000" />
+      {/* Heart */}
+      <path
+        d="M18 29 C8 22 4 15 4 11 C4 7 7.5 4.5 11.5 4.5 C14 4.5 16.5 6 18 9 C19.5 6 22 4.5 24.5 4.5 C28.5 4.5 32 7 32 11 C32 15 28 22 18 29Z"
+        fill="white"
+      />
+      {/* Medical cross */}
+      <rect x="16.5" y="7.5" width="3" height="9" rx="1" fill="#CC0000" />
+      <rect x="11.5" y="11.5" width="13" height="3" rx="1" fill="#CC0000" />
+    </svg>
+  );
+}
