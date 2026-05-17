@@ -181,6 +181,16 @@ export default function KandidatinForm({
     setField("documents", form.documents.filter((_, idx) => idx !== i));
   }
 
+  async function deleteStorageFile(url: string) {
+    if (!url || !url.includes("supabase")) return;
+    const marker = "/apo-media/";
+    const idx = url.indexOf(marker);
+    if (idx === -1) return;
+    const path = url.slice(idx + marker.length).split("?")[0];
+    const supabase = createClient();
+    await supabase.storage.from("apo-media").remove([path]);
+  }
+
   async function uploadFile(
     file: File,
     type: "video" | "photo",
@@ -189,6 +199,10 @@ export default function KandidatinForm({
     if (!slug) { setUploadError("Bitte zuerst einen Slug festlegen."); return; }
     setUploading(true);
     setUploadError("");
+
+    // Delete old file from storage before uploading new one
+    const existingUrl = type === "video" ? form.videoUrl : form.photoUrl;
+    if (existingUrl) await deleteStorageFile(existingUrl);
 
     const ext = file.name.split(".").pop();
     const path = `kandidatinnen/${slug}/${type}.${ext}`;
@@ -585,7 +599,7 @@ export default function KandidatinForm({
                   />
                   <button
                     type="button"
-                    onClick={() => setField("photoUrl", "")}
+                    onClick={async () => { await deleteStorageFile(form.photoUrl); setField("photoUrl", ""); }}
                     className="absolute -top-1.5 -right-1.5 rounded-full bg-red-600 p-0.5 text-white"
                   >
                     <X className="h-3 w-3" />
@@ -631,7 +645,7 @@ export default function KandidatinForm({
                   <span className="text-xs text-green-700 flex-1 truncate">{form.videoUrl}</span>
                   <button
                     type="button"
-                    onClick={() => setField("videoUrl", "")}
+                    onClick={async () => { await deleteStorageFile(form.videoUrl); setField("videoUrl", ""); }}
                     className="text-green-500 hover:text-red-600"
                   >
                     <X className="h-3.5 w-3.5" />
