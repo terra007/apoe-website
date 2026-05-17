@@ -61,6 +61,7 @@ export default async function AdminDashboard() {
                 <th className="text-left px-5 py-3 text-xs font-semibold text-navy-500 uppercase tracking-wider hidden sm:table-cell">Phase</th>
                 <th className="text-left px-5 py-3 text-xs font-semibold text-navy-500 uppercase tracking-wider hidden md:table-cell">Deutsch</th>
                 <th className="text-left px-5 py-3 text-xs font-semibold text-navy-500 uppercase tracking-wider hidden lg:table-cell">Verfügbar</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold text-navy-500 uppercase tracking-wider hidden md:table-cell">Foto</th>
                 <th className="text-left px-5 py-3 text-xs font-semibold text-navy-500 uppercase tracking-wider hidden md:table-cell">Video</th>
                 <th className="px-5 py-3" />
               </tr>
@@ -90,6 +91,13 @@ export default async function AdminDashboard() {
                       </div>
                     </td>
                     <td className="px-5 py-4 text-navy-500 text-xs hidden lg:table-cell">{k.availableFrom}</td>
+                    <td className="px-5 py-4 hidden md:table-cell">
+                      {k.photoUrl ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">✓ Foto</span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-navy-100 px-2 py-0.5 text-xs font-medium text-navy-500">— kein Foto</span>
+                      )}
+                    </td>
                     <td className="px-5 py-4 hidden md:table-cell">
                       {k.videoUrl ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">✓ Video</span>
