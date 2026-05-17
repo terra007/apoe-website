@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Play, Video } from "lucide-react";
 
 interface VideoEmbedProps {
@@ -21,15 +21,16 @@ export default function VideoEmbed({
   initials,
 }: VideoEmbedProps) {
   const [playing, setPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   // Local MP4 video (from /public/videos/)
   if (videoUrl && isLocalVideo(videoUrl)) {
     return (
       <div className="relative w-full overflow-hidden rounded-2xl bg-black shadow-lg" style={{ aspectRatio: "16/9" }}>
         <video
+          ref={videoRef}
           src={videoUrl}
           controls
-          autoPlay={playing}
           playsInline
           className="absolute inset-0 h-full w-full object-cover"
           title={`Vorstellungsvideo ${nurseName}`}
@@ -41,7 +42,7 @@ export default function VideoEmbed({
         {!playing && (
           <div
             className="absolute inset-0 flex flex-col items-center justify-center gap-3 cursor-pointer group"
-            onClick={() => setPlaying(true)}
+            onClick={() => { setPlaying(true); videoRef.current?.play(); }}
           >
             <div className={`absolute inset-0 bg-gradient-to-br ${avatarColor} opacity-60`} />
             <div className="relative z-10 flex flex-col items-center gap-3">
