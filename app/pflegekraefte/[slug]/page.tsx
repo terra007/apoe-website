@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, ArrowRight, MapPin, Briefcase, Languages, Star } from "lucide-react";
 import { readKandidatinnen } from "@/lib/data-store";
 import { phaseLabels, phaseColors } from "@/lib/pflegekraefte-data";
@@ -65,11 +66,13 @@ export default async function PflegekraftProfilePage({ params }: Props) {
             {/* Avatar / Photo */}
             <div className="flex-shrink-0 h-20 w-20 sm:h-24 sm:w-24 rounded-2xl border-2 border-white/30 overflow-hidden">
               {pk.photoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   src={pk.photoUrl}
                   alt={pk.name}
+                  width={96}
+                  height={96}
                   className="h-full w-full object-cover object-top"
+                  priority
                 />
               ) : (
                 <div className="h-full w-full flex items-center justify-center bg-white/20 text-3xl font-bold text-white">

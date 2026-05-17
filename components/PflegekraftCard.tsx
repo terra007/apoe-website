@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Star, Clock, PlayCircle } from "lucide-react";
 import { type Pflegekraft, phaseLabels, phaseColors } from "@/lib/pflegekraefte-data";
 
@@ -19,8 +20,13 @@ export default function PflegekraftCard({ pflegekraft: pk }: PflegekraftCardProp
       <Link href={`/pflegekraefte/${pk.slug}`} aria-label={`Profil von ${pk.name} öffnen`} tabIndex={-1}>
         {pk.photoUrl ? (
           <div className="relative h-48 overflow-hidden bg-navy-100">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={pk.photoUrl} alt={pk.name} className="w-full h-full object-cover object-top" />
+            <Image
+              src={pk.photoUrl!}
+              alt={pk.name}
+              fill
+              className="object-cover object-top"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            />
 
             {/* Phase badge */}
             <div className={`absolute top-3 left-3 badge ${colors.badge} text-xs font-semibold`}>

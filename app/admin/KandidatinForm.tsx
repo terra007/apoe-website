@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import NextImage from "next/image";
 import { Plus, Trash2, Save, ArrowLeft, Upload, X, Film, Image as ImageIcon } from "lucide-react";
 import { generateSlug } from "@/lib/slug";
 import { createClient } from "@/lib/supabase/client";
@@ -591,11 +592,13 @@ export default function KandidatinForm({
             <div className="mt-1 space-y-2">
               {form.photoUrl ? (
                 <div className="relative inline-block">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <NextImage
                     src={form.photoUrl}
                     alt="Vorschau"
+                    width={80}
+                    height={80}
                     className="h-20 w-20 rounded-xl object-cover border border-navy-200"
+                    unoptimized={!form.photoUrl.includes("supabase")}
                   />
                   <button
                     type="button"
