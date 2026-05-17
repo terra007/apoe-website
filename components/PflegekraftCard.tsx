@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Star, Clock } from "lucide-react";
+import { ArrowRight, Star, Clock, PlayCircle } from "lucide-react";
 import { type Pflegekraft, phaseLabels, phaseColors } from "@/lib/pflegekraefte-data";
 
 interface PflegekraftCardProps {
@@ -15,36 +15,27 @@ export default function PflegekraftCard({ pflegekraft: pk }: PflegekraftCardProp
   return (
     <div className="group rounded-2xl border border-navy-100 bg-white shadow-card hover:shadow-card-hover transition-all duration-200 overflow-hidden hover:-translate-y-0.5">
 
-      {/* Video / Photo / Gradient Header */}
-      {pk.videoUrl ? (
-        <div
-          className="relative h-48 bg-black overflow-hidden"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <video
-            src={pk.videoUrl}
-            controls
-            playsInline
-            preload="metadata"
-            className="w-full h-full object-cover"
-            aria-label={`Vorstellungsvideo ${pk.name}`}
-          />
-          <div className={`absolute top-3 left-3 badge ${colors.badge} text-xs font-semibold pointer-events-none`}>
-            Phase {pk.currentPhase}
-          </div>
-        </div>
-      ) : pk.photoUrl ? (
-        <Link href={`/pflegekraefte/${pk.slug}`} aria-label={`Profil von ${pk.name} öffnen`} tabIndex={-1}>
+      {/* Photo / Gradient Header — always shown, video badge if video exists */}
+      <Link href={`/pflegekraefte/${pk.slug}`} aria-label={`Profil von ${pk.name} öffnen`} tabIndex={-1}>
+        {pk.photoUrl ? (
           <div className="relative h-48 overflow-hidden bg-navy-100">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={pk.photoUrl} alt={pk.name} className="w-full h-full object-cover object-top" />
+
+            {/* Phase badge */}
             <div className={`absolute top-3 left-3 badge ${colors.badge} text-xs font-semibold`}>
               Phase {pk.currentPhase}
             </div>
+
+            {/* Video badge */}
+            {pk.videoUrl && (
+              <div className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-black/70 backdrop-blur-sm px-2.5 py-1 text-xs font-semibold text-white">
+                <PlayCircle className="h-3.5 w-3.5 text-red-400" aria-hidden="true" />
+                Video im Profil
+              </div>
+            )}
           </div>
-        </Link>
-      ) : (
-        <Link href={`/pflegekraefte/${pk.slug}`} aria-label={`Profil von ${pk.name} öffnen`} tabIndex={-1}>
+        ) : (
           <div className={`relative h-40 bg-gradient-to-br ${pk.avatarColor} flex items-center justify-center overflow-hidden`}>
             <div
               className="absolute inset-0 opacity-10"
@@ -58,9 +49,16 @@ export default function PflegekraftCard({ pflegekraft: pk }: PflegekraftCardProp
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 border-2 border-white/40 text-2xl font-bold text-white">
                 {initials}
               </div>
-              <span className="text-xs font-medium text-white/70 bg-black/20 rounded-full px-3 py-0.5">
-                🎬 Intro-Video folgt
-              </span>
+              {pk.videoUrl ? (
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-white/90 bg-black/30 rounded-full px-3 py-0.5">
+                  <PlayCircle className="h-3.5 w-3.5 text-red-300" />
+                  Video im Profil
+                </span>
+              ) : (
+                <span className="text-xs font-medium text-white/60 bg-black/20 rounded-full px-3 py-0.5">
+                  Foto folgt
+                </span>
+              )}
             </div>
             <div className={`absolute top-3 left-3 badge ${colors.badge} text-xs font-semibold`}>
               Phase {pk.currentPhase}
@@ -69,8 +67,8 @@ export default function PflegekraftCard({ pflegekraft: pk }: PflegekraftCardProp
               <ArrowRight className="h-4 w-4 text-white" aria-hidden="true" />
             </div>
           </div>
-        </Link>
-      )}
+        )}
+      </Link>
 
       {/* Card Body */}
       <Link
