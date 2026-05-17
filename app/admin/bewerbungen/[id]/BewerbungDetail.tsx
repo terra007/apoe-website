@@ -4,10 +4,56 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { deAusbildung, deDeutsch, deDokument, deErfahrung, deVerfueg } from "@/lib/normalizeToDE";
 import {
-  AlertCircle, CheckCircle2, Clock, Copy, Download,
+  AlertCircle, CheckCircle2, Clock, Copy, Download, Eye,
   FileText, Image as ImageIcon, Link as LinkIcon,
   Loader2, Mail, Plus, Save, Trash2, X,
 } from "lucide-react";
+
+// ── Preview Modal ─────────────────────────────────────────────────────────────
+function PreviewModal({ url, name, onClose }: { url: string; name: string; onClose: () => void }) {
+  const isImage = /\.(jpg|jpeg|png|webp|gif)$/i.test(name);
+  const isPdf   = /\.pdf$/i.test(name);
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      onClick={onClose}>
+      <div className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+        onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100">
+          <p className="text-sm font-semibold text-navy-900 truncate max-w-[70%]">{name}</p>
+          <div className="flex items-center gap-2">
+            <a href={url} download target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-navy-200 px-3 py-1.5 text-xs font-medium text-navy-600 hover:bg-navy-50 transition-colors">
+              <Download className="h-3.5 w-3.5" /> Herunterladen
+            </a>
+            <button onClick={onClose} className="rounded-lg p-1.5 text-navy-400 hover:bg-navy-100 transition-colors">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        {/* Content */}
+        <div className="flex-1 overflow-auto bg-gray-50 flex items-center justify-center p-4" style={{ minHeight: 300 }}>
+          {isImage && (
+            <img src={url} alt={name} className="max-w-full max-h-[70vh] rounded-xl shadow object-contain" />
+          )}
+          {isPdf && (
+            <iframe src={url} title={name} className="w-full rounded-xl" style={{ height: "70vh" }} />
+          )}
+          {!isImage && !isPdf && (
+            <div className="text-center py-12">
+              <FileText className="h-12 w-12 text-navy-300 mx-auto mb-3" />
+              <p className="text-sm text-navy-500 mb-4">Keine Vorschau verfügbar für diesen Dateityp.</p>
+              <a href={url} download target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-4 py-2 text-sm font-semibold text-white hover:bg-navy-700 transition-colors">
+                <Download className="h-4 w-4" /> Datei herunterladen
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const STATUS_OPTIONS = [
   { value: "neu",                  label: "Neu" },
@@ -72,6 +118,7 @@ export default function BewerbungDetail({ initial, supabaseUrl }: {
   const [status, setStatus]     = useState(initial.status);
   const [saving, setSaving]     = useState(false);
   const [saveMsg, setSaveMsg]   = useState("");
+  const [preview, setPreview]   = useState<{ url: string; name: string } | null>(null);
 
   // Document request
   const [selected, setSelected]         = useState<string[]>(initial.angefragt_dokumente ?? []);
@@ -176,21 +223,34 @@ export default function BewerbungDetail({ initial, supabaseUrl }: {
         {docs.length === 0
           ? <p className="text-xs text-navy-400">Keine Dokumente.</p>
           : <ul className="space-y-2">
-              {docs.map((doc) => (
-                <li key={doc.id} className="flex items-center gap-2 text-sm">
-                  <DocIcon mime={doc.mime_type} />
-                  <span className="flex-1 truncate text-navy-700" title={doc.original_name}>{doc.original_name}</span>
-                  <span className="text-xs text-navy-400 flex-shrink-0">{fmt(doc.groesse)}</span>
-                  <a href={publicUrl(doc.storage_path)} target="_blank" rel="noopener noreferrer"
-                    className="text-navy-300 hover:text-navy-700 transition-colors flex-shrink-0" title="Herunterladen">
-                    <Download className="h-3.5 w-3.5" />
-                  </a>
-                  <button onClick={() => deleteDoc(doc.id)}
-                    className="text-navy-300 hover:text-red-500 transition-colors flex-shrink-0" title="Löschen">
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </li>
-              ))}
+              {docs.map((doc) => {
+                const url = publicUrl(doc.storage_path);
+                return (
+                  <li key={doc.id} className="flex items-center gap-2 text-sm group">
+                    <DocIcon mime={doc.mime_type} />
+                    <button
+                      onClick={() => setPreview({ url, name: doc.original_name })}
+                      className="flex-1 truncate text-left text-navy-700 hover:text-red-austria transition-colors"
+                      title={`Vorschau: ${doc.original_name}`}
+                    >
+                      {doc.original_name}
+                    </button>
+                    <span className="text-xs text-navy-400 flex-shrink-0">{fmt(doc.groesse)}</span>
+                    <button onClick={() => setPreview({ url, name: doc.original_name })}
+                      className="text-navy-300 hover:text-navy-700 transition-colors flex-shrink-0" title="Vorschau">
+                      <Eye className="h-3.5 w-3.5" />
+                    </button>
+                    <a href={url} target="_blank" rel="noopener noreferrer"
+                      className="text-navy-300 hover:text-navy-700 transition-colors flex-shrink-0" title="Herunterladen">
+                      <Download className="h-3.5 w-3.5" />
+                    </a>
+                    <button onClick={() => deleteDoc(doc.id)}
+                      className="text-navy-300 hover:text-red-500 transition-colors flex-shrink-0" title="Löschen">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
         }
       </div>
@@ -199,6 +259,7 @@ export default function BewerbungDetail({ initial, supabaseUrl }: {
 
   return (
     <div className="space-y-6">
+      {preview && <PreviewModal url={preview.url} name={preview.name} onClose={() => setPreview(null)} />}
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
