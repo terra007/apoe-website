@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServiceClient } from "@/lib/supabase/service";
+import { createClient } from "@/lib/supabase/server";
 
 type Params = { params: Promise<{ token: string }> };
 
@@ -16,17 +16,13 @@ export async function POST(request: NextRequest, { params }: Params): Promise<Ne
     return NextResponse.json({ error: "Ungültiger Token." }, { status: 400 });
   }
 
-  const service = createServiceClient();
+  // Validate token via SECURITY DEFINER RPC — no service role key needed
+  const supabase = await createClient();
+  const { data: raw } = await supabase.rpc("get_portal_data", { p_token: token });
 
-  // Validate token
-  const { data: bew } = await service
-    .from("bewerbungen")
-    .select("id, upload_token_created_at")
-    .eq("upload_token", token)
-    .single();
+  if (!raw) return NextResponse.json({ error: "Ungültiger oder abgelaufener Link." }, { status: 403 });
 
-  if (!bew) return NextResponse.json({ error: "Ungültiger oder abgelaufener Link." }, { status: 403 });
-
+  const bew = raw as { id: string; upload_token_created_at: string };
   const age = Date.now() - new Date(bew.upload_token_created_at).getTime();
   if (age > TOKEN_TTL_MS) {
     return NextResponse.json({ error: "Dieser Link ist abgelaufen." }, { status: 403 });
@@ -38,16 +34,17 @@ export async function POST(request: NextRequest, { params }: Params): Promise<Ne
   }
 
   const p = body as Record<string, unknown>;
-  const original_name  = sanitize(p.original_name);
-  const storage_path   = sanitize(p.storage_path);
-  const mime_type      = sanitize(p.mime_type);
-  const groesse        = typeof p.groesse === "number" ? Math.round(p.groesse) : null;
+  const original_name = sanitize(p.original_name);
+  const storage_path  = sanitize(p.storage_path);
+  const mime_type     = sanitize(p.mime_type);
+  const groesse       = typeof p.groesse === "number" ? Math.round(p.groesse) : null;
 
   if (!original_name || !storage_path) {
     return NextResponse.json({ error: "Pflichtfelder fehlen." }, { status: 400 });
   }
 
-  const { data, error } = await service
+  // anon_insert_dokumente policy allows uploaded_by = 'portal'
+  const { data, error } = await supabase
     .from("bewerbung_dokumente")
     .insert({
       bewerbung_id: bew.id,

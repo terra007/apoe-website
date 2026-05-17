@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { Resend } from "resend";
 import { createClient } from "@/lib/supabase/server";
-import { createServiceClient } from "@/lib/supabase/service";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -19,9 +18,8 @@ export async function POST(request: NextRequest, { params }: Params): Promise<Ne
     return NextResponse.json({ error: "Mindestens ein Dokument erforderlich." }, { status: 400 });
   }
 
-  // Load application with service client (bypasses RLS for reading)
-  const service = createServiceClient();
-  const { data: bew, error: fetchErr } = await service
+  // Admin is authenticated → regular client has full access via auth_all_bewerbungen policy
+  const { data: bew, error: fetchErr } = await supabase
     .from("bewerbungen")
     .select("id, vorname, nachname, email, herkunftsland")
     .eq("id", id)
@@ -33,7 +31,7 @@ export async function POST(request: NextRequest, { params }: Params): Promise<Ne
 
   // Generate new upload token (7 days validity)
   const uploadToken = randomUUID();
-  const { error: updateErr } = await service
+  const { error: updateErr } = await supabase
     .from("bewerbungen")
     .update({
       upload_token: uploadToken,
