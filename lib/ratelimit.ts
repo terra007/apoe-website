@@ -8,3 +8,11 @@ export const contactRatelimit = new Ratelimit({
   analytics: false,
   prefix: "apo:contact",
 });
+
+// 3 Bewerbungen pro Stunde pro IP
+export const bewerberRatelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(3, "60 m"),
+  analytics: false,
+  prefix: "apo:bewerber",
+});
