@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { deAusbildung, deDeutsch, deDokument, deErfahrung, deVerfueg } from "@/lib/normalizeToDE";
 import {
   AlertCircle, CheckCircle2, Clock, Copy, Download,
   FileText, Image as ImageIcon, Link as LinkIcon,
@@ -224,10 +225,10 @@ export default function BewerbungDetail({ initial, supabaseUrl }: {
                 ["E-Mail", bew.email, `mailto:${bew.email}`],
                 ["Telefon / WhatsApp", bew.telefon ?? "—", bew.telefon ? `tel:${bew.telefon}` : null],
                 ["Herkunftsland", bew.herkunftsland, null],
-                ["Ausbildung", bew.ausbildung, null],
-                ["Berufserfahrung", bew.erfahrung, null],
-                ["Deutschkenntnisse", bew.deutschkenntnisse, null],
-                ["Verfügbarkeit", bew.verfuegbarkeit, null],
+                ["Ausbildung", deAusbildung(bew.ausbildung), null],
+                ["Berufserfahrung", deErfahrung(bew.erfahrung), null],
+                ["Deutschkenntnisse", deDeutsch(bew.deutschkenntnisse), null],
+                ["Verfügbarkeit", deVerfueg(bew.verfuegbarkeit), null],
               ] as [string, string, string | null][]).map(([label, value, href]) => (
                 <div key={label}>
                   <dt className="text-xs text-navy-400 mb-0.5">{label}</dt>
@@ -247,7 +248,7 @@ export default function BewerbungDetail({ initial, supabaseUrl }: {
                 <div className="flex flex-wrap gap-1.5">
                   {bew.vorhandene_dokumente.map((d) => (
                     <span key={d} className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs text-green-700">
-                      <CheckCircle2 className="h-3 w-3" /> {d}
+                      <CheckCircle2 className="h-3 w-3" /> {deDokument(d)}
                     </span>
                   ))}
                 </div>

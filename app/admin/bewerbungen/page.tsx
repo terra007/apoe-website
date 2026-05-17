@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { Eye } from "lucide-react";
 import BewerbungDeleteButton from "./BewerbungDeleteButton";
+import { deAusbildung, deDeutsch } from "@/lib/normalizeToDE";
 
 export const dynamic = "force-dynamic";
 
@@ -108,9 +109,9 @@ export default async function BewerbungenPage() {
                     </td>
                     <td className="px-5 py-4 text-navy-600 text-xs hidden sm:table-cell">{b.herkunftsland}</td>
                     <td className="px-5 py-4 text-navy-600 text-xs hidden md:table-cell max-w-[140px]">
-                      <span className="truncate block">{b.ausbildung}</span>
+                      <span className="truncate block">{deAusbildung(b.ausbildung)}</span>
                     </td>
-                    <td className="px-5 py-4 text-navy-600 text-xs hidden md:table-cell">{b.deutschkenntnisse}</td>
+                    <td className="px-5 py-4 text-navy-600 text-xs hidden md:table-cell">{deDeutsch(b.deutschkenntnisse)}</td>
                     <td className="px-5 py-4">
                       <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_STYLES[b.status] ?? "bg-navy-100 text-navy-600"}`}>
                         {STATUS_LABELS[b.status] ?? b.status}
