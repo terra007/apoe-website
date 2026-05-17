@@ -41,6 +41,15 @@ CREATE TABLE IF NOT EXISTS bewerbung_dokumente (
 ALTER TABLE bewerbungen        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bewerbung_dokumente ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies first (idempotent re-run)
+DROP POLICY IF EXISTS "anon_insert_bewerbungen"    ON bewerbungen;
+DROP POLICY IF EXISTS "auth_all_bewerbungen"       ON bewerbungen;
+DROP POLICY IF EXISTS "anon_insert_dokumente"      ON bewerbung_dokumente;
+DROP POLICY IF EXISTS "auth_all_dokumente"         ON bewerbung_dokumente;
+DROP POLICY IF EXISTS "anon_upload_bewerbungen"    ON storage.objects;
+DROP POLICY IF EXISTS "anon_read_bewerbungen"      ON storage.objects;
+DROP POLICY IF EXISTS "auth_all_bewerbungen_storage" ON storage.objects;
+
 -- Public (anon) can submit applications
 CREATE POLICY "anon_insert_bewerbungen"
   ON bewerbungen FOR INSERT TO anon WITH CHECK (true);
@@ -59,7 +68,6 @@ CREATE POLICY "auth_all_dokumente"
   ON bewerbung_dokumente FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- ── Supabase Storage Policies (bucket: apo-media) ───
--- Run these if the bucket already exists; otherwise configure in the dashboard.
 
 CREATE POLICY "anon_upload_bewerbungen"
   ON storage.objects FOR INSERT TO anon
