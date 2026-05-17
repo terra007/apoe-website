@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 import { bewerberRatelimit } from "@/lib/ratelimit";
 import { createClient } from "@/lib/supabase/server";
 
@@ -62,23 +63,26 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "Kurzvorstellung zu kurz (min. 20 Zeichen)." }, { status: 400 });
   }
 
+  // Generate UUID here so we never need a SELECT-after-insert
+  // (anon role has no SELECT policy on bewerbungen)
+  const bewerbungId = randomUUID();
+
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("bewerbungen")
     .insert({
+      id: bewerbungId,
       vorname, nachname, email, telefon: telefon || null,
       herkunftsland, ausbildung, erfahrung,
       deutschkenntnisse, verfuegbarkeit, nachricht,
       vorhandene_dokumente, status: "neu",
-    })
-    .select("id")
-    .single();
+    });
 
-  if (error || !data) {
+  if (error) {
     console.error("[APÖ Bewerbung] DB error:", error);
     return NextResponse.json({ error: "Bewerbung konnte nicht gespeichert werden." }, { status: 500 });
   }
 
-  console.info("[APÖ Bewerbung] created:", data.id, email);
-  return NextResponse.json({ success: true, id: data.id }, { status: 201 });
+  console.info("[APÖ Bewerbung] created:", bewerbungId, email);
+  return NextResponse.json({ success: true, id: bewerbungId }, { status: 201 });
 }

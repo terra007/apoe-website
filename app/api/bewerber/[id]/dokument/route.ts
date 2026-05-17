@@ -34,16 +34,8 @@ export async function POST(
 
   const supabase = await createClient();
 
-  // Verify application exists (anon read needs to bypass RLS via service — use anon check)
-  const { data: bew } = await supabase
-    .from("bewerbungen")
-    .select("id")
-    .eq("id", id)
-    .single();
-
-  if (!bew) {
-    return NextResponse.json({ error: "Bewerbung nicht gefunden." }, { status: 404 });
-  }
+  // No SELECT check here — anon has no SELECT policy on bewerbungen.
+  // The FK constraint on bewerbung_dokumente will reject invalid IDs.
 
   const { data, error } = await supabase
     .from("bewerbung_dokumente")
