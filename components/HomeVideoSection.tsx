@@ -5,9 +5,10 @@ import { Play } from "lucide-react";
 
 interface HomeVideoSectionProps {
   videoUrl: string;
+  posterUrl?: string;
 }
 
-export default function HomeVideoSection({ videoUrl }: HomeVideoSectionProps) {
+export default function HomeVideoSection({ videoUrl, posterUrl }: HomeVideoSectionProps) {
   const [playing, setPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -43,6 +44,7 @@ export default function HomeVideoSection({ videoUrl }: HomeVideoSectionProps) {
             <video
               ref={videoRef}
               src={videoUrl}
+              poster={posterUrl}
               controls={playing}
               playsInline
               preload="metadata"

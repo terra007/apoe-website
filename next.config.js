@@ -16,6 +16,10 @@ const securityHeaders = [
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=(), payment=()",
   },
+  // Erzwingt HTTPS für 2 Jahre (nur in Produktion sinnvoll)
+  ...(process.env.NODE_ENV === "production"
+    ? [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" }]
+    : []),
   // Content Security Policy
   {
     key: "Content-Security-Policy",

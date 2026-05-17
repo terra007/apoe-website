@@ -18,7 +18,10 @@ export default function HomePage() {
     <>
       <HeroSection />
       {process.env.NEXT_PUBLIC_HOME_VIDEO_URL && (
-        <HomeVideoSection videoUrl={process.env.NEXT_PUBLIC_HOME_VIDEO_URL} />
+        <HomeVideoSection
+          videoUrl={process.env.NEXT_PUBLIC_HOME_VIDEO_URL}
+          posterUrl={process.env.NEXT_PUBLIC_HOME_VIDEO_POSTER_URL}
+        />
       )}
       <TrustIndicators />
       <ThreePillars />
