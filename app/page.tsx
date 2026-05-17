@@ -3,6 +3,7 @@ import HeroSection from "@/components/HeroSection";
 import TrustIndicators from "@/components/TrustIndicators";
 import ThreePillars from "@/components/ThreePillars";
 import ProcessTracker from "@/components/ProcessTracker";
+import HomeVideoSection from "@/components/HomeVideoSection";
 import Link from "next/link";
 import { ArrowRight, Phone } from "lucide-react";
 
@@ -16,6 +17,9 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
+      {process.env.NEXT_PUBLIC_HOME_VIDEO_URL && (
+        <HomeVideoSection videoUrl={process.env.NEXT_PUBLIC_HOME_VIDEO_URL} />
+      )}
       <TrustIndicators />
       <ThreePillars />
       <ProcessTracker />

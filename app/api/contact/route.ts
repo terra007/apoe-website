@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { contactRatelimit } from "@/lib/ratelimit";
 
 interface ContactPayload {
   name: string;
@@ -20,6 +21,15 @@ function sanitize(value: unknown): string {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anonymous";
+  const { success } = await contactRatelimit.limit(ip);
+  if (!success) {
+    return NextResponse.json(
+      { error: "Zu viele Anfragen. Bitte warten Sie einige Minuten." },
+      { status: 429 }
+    );
+  }
+
   let body: unknown;
 
   try {

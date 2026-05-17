@@ -1,29 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
-import { readKandidatinnen, createKandidatin } from "@/lib/data-store";
 import { createClient } from "@/lib/supabase/server";
+import { createKandidatin } from "@/lib/data-store";
 import type { Pflegekraft } from "@/lib/pflegekraefte-data";
 
-async function isAuthorized(): Promise<boolean> {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  return !!user;
-}
+  if (!user) {
+    return NextResponse.json({ error: "Nicht autorisiert." }, { status: 401 });
+  }
 
-export async function GET() {
-  if (!(await isAuthorized())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  return NextResponse.json(await readKandidatinnen());
-}
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Ungültiges JSON." }, { status: 400 });
+  }
 
-export async function POST(req: NextRequest) {
-  if (!(await isAuthorized())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const kandidatin = body as Pflegekraft;
+  if (!kandidatin?.slug || !kandidatin?.name) {
+    return NextResponse.json({ error: "Pflichtfelder fehlen (slug, name)." }, { status: 400 });
+  }
 
-  const data = (await req.json()) as Pflegekraft;
-  const result = await createKandidatin(data);
+  const result = await createKandidatin(kandidatin);
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: 500 });
+  }
 
-  if (!result.ok) return NextResponse.json({ error: result.error }, { status: 409 });
-
-  revalidatePath("/pflegekraefte");
-  revalidatePath(`/pflegekraefte/${data.slug}`);
-  return NextResponse.json({ ok: true }, { status: 201 });
+  return NextResponse.json({ success: true }, { status: 201 });
 }

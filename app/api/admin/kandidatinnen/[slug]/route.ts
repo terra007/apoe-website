@@ -1,35 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
-import { updateKandidatin, deleteKandidatin } from "@/lib/data-store";
 import { createClient } from "@/lib/supabase/server";
+import { updateKandidatin, deleteKandidatin } from "@/lib/data-store";
 import type { Pflegekraft } from "@/lib/pflegekraefte-data";
 
-async function isAuthorized(): Promise<boolean> {
+interface Params {
+  params: { slug: string };
+}
+
+export async function PUT(request: NextRequest, { params }: Params): Promise<NextResponse> {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  return !!user;
+  if (!user) {
+    return NextResponse.json({ error: "Nicht autorisiert." }, { status: 401 });
+  }
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Ungültiges JSON." }, { status: 400 });
+  }
+
+  const kandidatin = body as Pflegekraft;
+  if (!kandidatin?.name) {
+    return NextResponse.json({ error: "Pflichtfeld fehlt (name)." }, { status: 400 });
+  }
+
+  const result = await updateKandidatin(params.slug, kandidatin);
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { slug: string } }) {
-  if (!(await isAuthorized())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const data = (await req.json()) as Pflegekraft;
-  const result = await updateKandidatin(params.slug, data);
-
-  if (!result.ok) return NextResponse.json({ error: result.error }, { status: 404 });
-
-  revalidatePath("/pflegekraefte");
-  revalidatePath(`/pflegekraefte/${params.slug}`);
-  if (data.slug !== params.slug) revalidatePath(`/pflegekraefte/${data.slug}`);
-  return NextResponse.json({ ok: true });
-}
-
-export async function DELETE(req: NextRequest, { params }: { params: { slug: string } }) {
-  if (!(await isAuthorized())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function DELETE(_: NextRequest, { params }: Params): Promise<NextResponse> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Nicht autorisiert." }, { status: 401 });
+  }
 
   const result = await deleteKandidatin(params.slug);
-  if (!result.ok) return NextResponse.json({ error: result.error }, { status: 404 });
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: 500 });
+  }
 
-  revalidatePath("/pflegekraefte");
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ success: true });
 }
