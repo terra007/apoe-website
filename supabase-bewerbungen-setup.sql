@@ -36,6 +36,12 @@ CREATE TABLE IF NOT EXISTS bewerbung_dokumente (
   created_at     TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- ── Table Grants ────────────────────────────────────
+-- RLS policies alone are not enough; the role needs explicit table privileges.
+
+GRANT ALL ON bewerbungen         TO anon, authenticated;
+GRANT ALL ON bewerbung_dokumente TO anon, authenticated;
+
 -- ── Row Level Security ───────────────────────────────
 
 ALTER TABLE bewerbungen        ENABLE ROW LEVEL SECURITY;
