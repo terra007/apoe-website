@@ -94,56 +94,38 @@ const en: BewerberT = {
   dokumente: {
     sectionTitle: "Required Documents",
     sectionSubtitle:
-      "Prepare these documents. All non-German documents must be translated by a court-certified interpreter.",
-    note: {
-      title: "Note on Certification",
-      text: "All original documents from non-EU countries require an Apostille certification and a certified German translation by an interpreter authorised in Austria. We help you contact the right authorities.",
-    },
-    categories: [
-      {
-        name: "Personal Documents",
-        color: "bg-blue-50 border-blue-200",
-        titleColor: "text-blue-800",
-        items: [
-          "Valid passport (at least 2 years remaining)",
-          "Birth certificate",
-          "Police clearance certificate (no older than 3 months)",
-          "Current passport photo",
-        ],
-      },
-      {
-        name: "Educational Qualifications",
-        color: "bg-purple-50 border-purple-200",
-        titleColor: "text-purple-800",
-        items: [
-          "Nursing diploma / graduation certificate (original)",
-          "Curriculum with hour breakdown (theory & practice per subject)",
-          "Proof of the status of the training institution",
-          "Certified German translation of all documents",
-          "Apostille certification of original documents (where required)",
-        ],
-      },
-      {
-        name: "Professional Experience",
-        color: "bg-green-50 border-green-200",
-        titleColor: "text-green-800",
-        items: [
-          "Employment certificates / proof of employment",
-          "Job descriptions from previous positions",
-          "Reference letters (optional, recommended)",
-        ],
-      },
-      {
-        name: "Language Proof",
-        color: "bg-yellow-50 border-yellow-200",
-        titleColor: "text-yellow-800",
-        items: [
-          "German language certificate from a recognised institution",
-          "Accepted providers: ÖSD, Goethe-Institut, telc, ÖIF",
-          "Nursing Assistant: min. A2 | Senior Nursing Assistant: B1 | Registered Nurse: B2",
-        ],
-      },
+      "Please prepare the following documents. Mandatory items are marked with an asterisk (*).",
+    items: [
+      { label: "Profile photo / Portrait photo", required: true },
+      { label: "Passport", required: true },
+      { label: "Curriculum Vitae (CV) with photo", required: true },
+      { label: "Professional Certificate (Vocational/Technical) and/or Diploma/Degree Certificate (Original language with translation)", required: true },
+      { label: "Copy of Transcript and Grades from the Degree Certificate (Original language with translation)", required: true },
+      { label: "Copy of Records and Completed Practical Working Hours during professional training (Original language with translation)", required: true },
+      { label: "Professional Nursing License (Original language with translation)", required: true },
+      { label: "Internship Certificate (if applicable) (Original language with translation)", required: false },
+      { label: "Continuing Education Certificate (if applicable) (Original language with translation)", required: false },
+      { label: "Proof of Employment / Employment Certificate (if applicable) (Original language with translation)", required: false },
+      { label: "Language Certificate (if applicable)", required: false },
+      { label: "Birth Certificate (Original language with translation)", required: true },
+      { label: "Marriage Certificate or Certificate of Registered Partnership – If married or in a registered partnership (Original language with translation)", required: false },
     ],
+    submission: {
+      title: "Submission Requirements",
+      mandatoryNote: "Documents marked with an asterisk (*) are mandatory and must be submitted; otherwise, the application cannot be processed.",
+      originalLabel: "Original Document",
+      originalDesc: "A scan of the original document (Thai or English) or a digital copy (if available). (This applies to all original documents, including Passport, CV with photo, and Language Certificate).",
+      certifiedLabel: "Certified Translation",
+      certifiedDesc: "A scan of the original document certified by a sworn translator. (This applies to all translated documents).",
+    },
+    notes: {
+      title: "Note",
+      items: [
+        "Please always scan original documents in color.",
+        "Upload all original documents and certified translations as separate files (e.g., 1 file = 6-page original; 1 file = 6-page certified translation).",
+        "Scanned copies or identifiable photographs of documents that are not clear will not be processed. We will request the incorrect documents.",
+      ],
+    },
   },
   form: {
     sectionTitle: "Apply Now",

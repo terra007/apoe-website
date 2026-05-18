@@ -94,56 +94,38 @@ const de: BewerberT = {
   dokumente: {
     sectionTitle: "Benötigte Dokumente",
     sectionSubtitle:
-      "Bereiten Sie diese Unterlagen vor. Alle fremdsprachigen Dokumente müssen von einem gerichtlich beeideten Dolmetscher ins Deutsche übersetzt werden.",
-    note: {
-      title: "Hinweis zur Beglaubigung",
-      text: "Alle Originaldokumente aus Nicht-EU-Ländern benötigen eine Apostille-Beglaubigung sowie eine beglaubigte deutsche Übersetzung durch einen in Österreich zugelassenen Dolmetscher. Wir helfen Ihnen dabei, die richtigen Stellen zu kontaktieren.",
-    },
-    categories: [
-      {
-        name: "Persönliche Dokumente",
-        color: "bg-blue-50 border-blue-200",
-        titleColor: "text-blue-800",
-        items: [
-          "Gültiger Reisepass (mind. 2 Jahre Restlaufzeit)",
-          "Geburtsurkunde",
-          "Polizeiliches Führungszeugnis (nicht älter als 3 Monate)",
-          "Aktuelles Lichtbild (Passfoto)",
-        ],
-      },
-      {
-        name: "Ausbildungsnachweise",
-        color: "bg-purple-50 border-purple-200",
-        titleColor: "text-purple-800",
-        items: [
-          "Pflegediplom / Abschlusszeugnis (Original)",
-          "Lehrplan mit Stundenübersicht (Theorie & Praxis je Fach)",
-          "Nachweis des Status der Ausbildungseinrichtung",
-          "Beglaubigte deutsche Übersetzung aller Dokumente",
-          "Apostille-Beglaubigung der Originaldokumente (wo erforderlich)",
-        ],
-      },
-      {
-        name: "Berufserfahrung",
-        color: "bg-green-50 border-green-200",
-        titleColor: "text-green-800",
-        items: [
-          "Arbeitszeugnisse / Beschäftigungsnachweise",
-          "Stellenbeschreibungen bisheriger Tätigkeiten",
-          "Referenzschreiben (optional, empfohlen)",
-        ],
-      },
-      {
-        name: "Sprachnachweis",
-        color: "bg-yellow-50 border-yellow-200",
-        titleColor: "text-yellow-800",
-        items: [
-          "Deutschzertifikat von anerkannter Institution",
-          "Anerkannte Anbieter: ÖSD, Goethe-Institut, telc, ÖIF",
-          "Pflegeassistenz: mind. A2 | Pflegefachassistenz: B1 | DGKP: B2",
-        ],
-      },
+      "Bitte bereiten Sie folgende Unterlagen vor. Pflichtdokumente sind mit einem Sternchen (*) gekennzeichnet.",
+    items: [
+      { label: "Profilfoto / Passfoto", required: true },
+      { label: "Reisepass", required: true },
+      { label: "Lebenslauf (CV) mit Foto", required: true },
+      { label: "Berufszeugnis (Berufsschule/Fachschule) und/oder Diplom-/Abschlusszeugnis (Originalsprache mit Übersetzung)", required: true },
+      { label: "Kopie der Abschrift und Noten des Abschlusszeugnisses (Originalsprache mit Übersetzung)", required: true },
+      { label: "Kopie der Nachweise und absolvierten Praxisstunden aus der Berufsausbildung (Originalsprache mit Übersetzung)", required: true },
+      { label: "Berufliche Pflegelizenz (Originalsprache mit Übersetzung)", required: true },
+      { label: "Praktikumsbescheinigung (falls vorhanden) (Originalsprache mit Übersetzung)", required: false },
+      { label: "Weiterbildungszertifikat (falls vorhanden) (Originalsprache mit Übersetzung)", required: false },
+      { label: "Beschäftigungsnachweis / Arbeitszeugnis (falls vorhanden) (Originalsprache mit Übersetzung)", required: false },
+      { label: "Sprachzertifikat (falls vorhanden)", required: false },
+      { label: "Geburtsurkunde (Originalsprache mit Übersetzung)", required: true },
+      { label: "Heiratsurkunde oder Partnerschaftsurkunde – falls verheiratet oder in eingetragener Partnerschaft (Originalsprache mit Übersetzung)", required: false },
     ],
+    submission: {
+      title: "Einreichungsanforderungen",
+      mandatoryNote: "Mit einem Sternchen (*) gekennzeichnete Dokumente sind Pflichtdokumente und müssen eingereicht werden; andernfalls kann die Bewerbung nicht bearbeitet werden.",
+      originalLabel: "Originaldokument",
+      originalDesc: "Ein Scan des Originaldokuments (Thai oder Englisch) oder eine digitale Kopie (falls verfügbar). (Gilt für alle Originaldokumente, einschließlich Reisepass, Lebenslauf mit Foto und Sprachzertifikat).",
+      certifiedLabel: "Beglaubigte Übersetzung",
+      certifiedDesc: "Ein Scan des vom vereidigten Übersetzer beglaubigten Dokuments. (Gilt für alle übersetzten Dokumente).",
+    },
+    notes: {
+      title: "Hinweis",
+      items: [
+        "Bitte scannen Sie Originaldokumente immer in Farbe.",
+        "Laden Sie alle Originaldokumente und beglaubigten Übersetzungen als separate Dateien hoch (z. B. 1 Datei = 6-seitiges Original; 1 Datei = 6-seitige beglaubigte Übersetzung).",
+        "Eingescannte Kopien oder Fotografien von Dokumenten, die nicht klar erkennbar sind, werden nicht bearbeitet. Wir fordern die fehlerhaften Dokumente erneut an.",
+      ],
+    },
   },
   form: {
     sectionTitle: "Jetzt bewerben",

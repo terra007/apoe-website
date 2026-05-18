@@ -142,26 +142,52 @@ export default function BewerberPageContent({ t }: { t: BewerberT }) {
             <h2 className="section-title">{t.dokumente.sectionTitle}</h2>
             <p className="section-subtitle mt-3 max-w-2xl mx-auto">{t.dokumente.sectionSubtitle}</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {t.dokumente.categories.map(({ name, color, titleColor, items }) => (
-              <div key={name} className={`rounded-xl border p-6 ${color}`}>
-                <h3 className={`text-base font-bold mb-4 ${titleColor}`}>{name}</h3>
-                <ul className="space-y-2">
-                  {items.map((item) => (
-                    <li key={item} className="flex items-start gap-2 text-sm text-navy-700">
-                      <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                      <span className="leading-snug">{item}</span>
-                    </li>
-                  ))}
-                </ul>
+          <div className="max-w-3xl mx-auto space-y-8">
+            {/* Document list */}
+            <div className="rounded-xl border border-gray-200 bg-gray-50 p-6">
+              <ul className="space-y-3">
+                {t.dokumente.items.map(({ label, required }) => (
+                  <li key={label} className="flex items-start gap-3 text-sm text-navy-700">
+                    <CheckCircle2
+                      className={`h-4 w-4 flex-shrink-0 mt-0.5 ${required ? "text-red-austria" : "text-gray-400"}`}
+                      aria-hidden="true"
+                    />
+                    <span className="leading-snug">
+                      {label}
+                      {required && <span className="ml-1 font-bold text-red-austria">*</span>}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Submission requirements */}
+            <div className="rounded-xl border border-blue-200 bg-blue-50 p-6">
+              <h3 className="text-base font-bold text-blue-900 mb-3">{t.dokumente.submission.title}</h3>
+              <p className="text-sm text-blue-800 mb-4">{t.dokumente.submission.mandatoryNote}</p>
+              <div className="space-y-3">
+                <div className="rounded-lg bg-white border border-blue-100 p-4">
+                  <p className="text-sm font-semibold text-blue-900 mb-1">{t.dokumente.submission.originalLabel}</p>
+                  <p className="text-sm text-blue-700">{t.dokumente.submission.originalDesc}</p>
+                </div>
+                <div className="rounded-lg bg-white border border-blue-100 p-4">
+                  <p className="text-sm font-semibold text-blue-900 mb-1">{t.dokumente.submission.certifiedLabel}</p>
+                  <p className="text-sm text-blue-700">{t.dokumente.submission.certifiedDesc}</p>
+                </div>
               </div>
-            ))}
-          </div>
-          <div className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-5 flex items-start gap-4">
-            <MapPin className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" aria-hidden="true" />
-            <div>
-              <p className="text-sm font-semibold text-amber-800 mb-1">{t.dokumente.note.title}</p>
-              <p className="text-sm text-amber-700">{t.dokumente.note.text}</p>
+            </div>
+
+            {/* Notes */}
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 flex items-start gap-4">
+              <MapPin className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" aria-hidden="true" />
+              <div>
+                <p className="text-sm font-semibold text-amber-800 mb-2">{t.dokumente.notes.title}</p>
+                <ol className="space-y-1.5 list-decimal list-inside">
+                  {t.dokumente.notes.items.map((note, i) => (
+                    <li key={i} className="text-sm text-amber-700">{note}</li>
+                  ))}
+                </ol>
+              </div>
             </div>
           </div>
         </div>

@@ -75,8 +75,19 @@ export interface BewerberT {
   dokumente: {
     sectionTitle: string;
     sectionSubtitle: string;
-    note: { title: string; text: string };
-    categories: Array<{ name: string; color: string; titleColor: string; items: string[] }>;
+    items: Array<{ label: string; required: boolean }>;
+    submission: {
+      title: string;
+      mandatoryNote: string;
+      originalLabel: string;
+      originalDesc: string;
+      certifiedLabel: string;
+      certifiedDesc: string;
+    };
+    notes: {
+      title: string;
+      items: string[];
+    };
   };
   form: FormT & {
     sectionTitle: string;
