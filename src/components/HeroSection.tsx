@@ -48,8 +48,8 @@ export default function HeroSection() {
           className="mt-6 max-w-2xl text-lg text-slate-300"
         >
           APÖ begleitet Kliniken, Pflegeheime und Gemeinden von der Bedarfserhebung über die
-          Sprachausbildung in Bangkok und das Aufenthaltsverfahren bis zur Nostrifizierung als
-          DGKP oder Pflegeassistenz — ethisch rekrutiert, behördlich nachvollziehbar.
+          Sprachausbildung in Bangkok, Nostrifizierung und Aufenthaltsverfahren bis zur Eintragung
+          als DGKP oder Pflege(fach)assistenz, ethisch rekrutiert und behördlich nachvollziehbar.
         </motion.p>
 
         <motion.div

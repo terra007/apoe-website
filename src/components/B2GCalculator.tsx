@@ -70,11 +70,13 @@ export default function B2GCalculator() {
   const checklist = useMemo(() => {
     const items = [
       "Bedarfsmeldung & Stellenplan der Einrichtung",
-      "Mitwirkung AMS: Beschäftigungsbewilligung / Rot-Weiß-Rot-Karte",
-      "Sprachnachweis ÖSD (A1 → B1) vor Einreise",
-      "Anerkennungsverfahren (Nostrifizierung) für DGKP / Anerkennung PA",
+      "Rot-Weiß-Rot-Karte als Fachkraft im Mangelberuf (mind. 55 Punkte, Entlohnung nach Kollektivvertrag)",
+      "Deutschnachweis für die Registereintragung: B1 (PA/PFA), B2 (DGKP)",
+      "Nostrifizierung: bei DGKP vor dem Antrag auf die Karte abschließen",
+      "Eintragung im Gesundheitsberuferegister vor der Berufsausübung",
+      "Faire Anwerbung nach dem WHO-Verhaltenskodex",
     ];
-    if (dgkp > 0) items.push("DGKP: Ergänzungsprüfung / Anpassungslehrgang einplanen");
+    if (dgkp > 0) items.push("Ergänzungsprüfung oder Anpassungslehrgang einplanen (je nach Bescheid)");
     if (result.total >= 20) items.push("Unterkunft & Mentoring-Konzept für Kohorte ab 20 Personen");
     return items;
   }, [dgkp, result.total]);

@@ -1,4 +1,6 @@
 import B2GCalculator from "@/components/B2GCalculator";
+import BedarfSection from "@/components/BedarfSection";
+import FaqSection from "@/components/FaqSection";
 import HeroSection from "@/components/HeroSection";
 import Preloader from "@/components/Preloader";
 import ProcessTracker from "@/components/ProcessTracker";
@@ -10,9 +12,11 @@ export default function Home() {
       <Preloader />
       <main>
         <HeroSection />
+        <BedarfSection />
         <ProfilesSection />
         <B2GCalculator />
         <ProcessTracker />
+        <FaqSection />
       </main>
     </>
   );

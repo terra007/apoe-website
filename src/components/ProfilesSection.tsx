@@ -17,7 +17,7 @@ import {
   Star,
   X,
 } from "lucide-react";
-import { BEISPIELPROFILE, type Bundesland, type Deutsch, type PhaseId, type Profil, type Ziel } from "@/data/profiles";
+import { BEISPIELPROFILE, phaseLabel, type Bundesland, type Deutsch, type PhaseId, type Profil, type Ziel } from "@/data/profiles";
 import { cn } from "@/lib/utils";
 import ProfileAvatar from "./ProfileAvatar";
 import ProfileVideo from "./ProfileVideo";
@@ -43,8 +43,8 @@ function chip(active: boolean) {
   );
 }
 
-function PhaseBadge({ phase }: { phase: PhaseId }) {
-  const label = PHASES.find((p) => p.id === phase)?.label;
+function PhaseBadge({ phase, ziel }: { phase: PhaseId; ziel: Ziel }) {
+  const label = phaseLabel(ziel, phase);
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-xs text-slate-200">
       <Clock3 className="h-3 w-3" /> {label}
@@ -116,7 +116,7 @@ function ProfileDetail({
               {p.alter} Jahre · {p.herkunft}, Thailand
             </p>
             <div className="mt-2">
-              <PhaseBadge phase={p.phase} />
+              <PhaseBadge phase={p.phase} ziel={p.ziel} />
             </div>
           </div>
           <button
@@ -192,7 +192,7 @@ function ProfileDetail({
                     >
                       {i < aktiv ? "✓" : i + 1}
                     </span>
-                    <span className={cn(i > aktiv ? "text-slate-500" : "text-slate-100")}>{ph.label}</span>
+                    <span className={cn(i > aktiv ? "text-slate-500" : "text-slate-100")}>{phaseLabel(p.ziel, ph.id)}</span>
                   </li>
                 ))}
               </ol>
@@ -380,7 +380,7 @@ export default function ProfilesSection() {
                           Deutsch {p.deutsch.niveau}
                           {p.deutsch.zertifikat ? " ✓" : ""}
                         </span>
-                        <PhaseBadge phase={p.phase} />
+                        <PhaseBadge phase={p.phase} ziel={p.ziel} />
                         {resolveVideoUrl(p.video?.src) && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/15 px-2.5 py-1 text-xs text-emerald-300">
                             <Play className="h-3 w-3" /> Video

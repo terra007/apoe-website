@@ -3,6 +3,18 @@ export type Deutsch = "A2" | "B1" | "B2";
 export type PhaseId = "selektion" | "legal" | "nostrifizierung";
 export type UnterlageStatus = "liegt vor" | "in Prüfung" | "offen";
 
+/**
+ * Die Phasen heißen je nach Berufsgruppe anders, weil die Reihenfolge anders
+ * ist: Bei DGKP kommt die Nostrifizierung vor der Rot-Weiß-Rot-Karte, bei den
+ * Assistenzberufen die Karte zuerst (siehe ProcessTracker).
+ */
+export function phaseLabel(ziel: Ziel, phase: PhaseId): string {
+  if (ziel === "DGKP") {
+    return { selektion: "Selektion & Sprache", legal: "Nostrifizierung & Visa", nostrifizierung: "Einreise & Registrierung" }[phase];
+  }
+  return { selektion: "Selektion & Sprache", legal: "Legal & Visa", nostrifizierung: "Post-Migration & Nostrifizierung" }[phase];
+}
+
 export type Bundesland =
   | "Wien"
   | "Niederösterreich"
@@ -58,15 +70,15 @@ export const BEISPIELPROFILE: Profil[] = [
     ausbildung: "Bachelor of Nursing Science (4 Jahre), staatliche Universität",
     berufserfahrung: 6,
     fachbereiche: ["Geriatrie", "Innere Medizin"],
-    deutsch: { niveau: "B1", zertifikat: true, hinweis: "ÖSD B1 bestanden" },
+    deutsch: { niveau: "B1", zertifikat: true, hinweis: "ÖSD B1 bestanden, B2-Kurs läuft (B2 nötig für DGKP)" },
     sprachen: [
       { name: "Thai", niveau: "Muttersprache" },
       { name: "Englisch", niveau: "B2" },
       { name: "Deutsch", niveau: "B1" },
     ],
-    phase: "legal",
-    einsatzbereitAb: "09/2027",
-    startAls: "Pflegeassistenz, parallel Nostrifizierung zur DGKP",
+    phase: "selektion",
+    einsatzbereitAb: "voraussichtlich 2028",
+    startAls: "DGKP nach Nostrifizierung und Eintragung im Gesundheitsberuferegister",
     wunschBundesland: "Steiermark",
     einrichtung: "Landeskrankenhaus / Akutgeriatrie",
     kurzprofil:
@@ -75,8 +87,8 @@ export const BEISPIELPROFILE: Profil[] = [
     unterlagen: [
       { name: "Diplom & Transcript", status: "liegt vor" },
       { name: "ÖSD-Zertifikat B1", status: "liegt vor" },
+      { name: "ÖSD-Zertifikat B2", status: "offen" },
       { name: "Strafregisterauszug", status: "liegt vor" },
-      { name: "Antrag Rot-Weiß-Rot-Karte", status: "in Prüfung" },
       { name: "Antrag Nostrifizierung", status: "offen" },
     ],
     avatar: { skin: "#d9a074", hair: "bun", scrubs: "#0ea5a4" },
@@ -91,25 +103,25 @@ export const BEISPIELPROFILE: Profil[] = [
     ausbildung: "Bachelor of Nursing Science, Spezialisierung Intensivpflege",
     berufserfahrung: 9,
     fachbereiche: ["Intensivpflege", "Notfall"],
-    deutsch: { niveau: "B1", zertifikat: true, hinweis: "ÖSD B1 bestanden" },
+    deutsch: { niveau: "B2", zertifikat: true, hinweis: "ÖSD B2 bestanden" },
     sprachen: [
       { name: "Thai", niveau: "Muttersprache" },
       { name: "Englisch", niveau: "C1" },
-      { name: "Deutsch", niveau: "B1" },
+      { name: "Deutsch", niveau: "B2" },
     ],
-    phase: "nostrifizierung",
-    einsatzbereitAb: "sofort nach Einreise",
-    startAls: "Pflegeassistenz auf der Intensivstation, DGKP nach Anerkennung",
+    phase: "legal",
+    einsatzbereitAb: "ca. 4–6 Monate nach Nostrifizierungsbescheid",
+    startAls: "DGKP auf der Intensivstation, nach Rot-Weiß-Rot-Karte und Registereintrag",
     wunschBundesland: "Tirol",
     einrichtung: "Klinikum / Intensivstation",
     kurzprofil:
-      "Neun Jahre Intensivpflege mit Beatmung und Dialyse. Hat die Anerkennungsunterlagen vollständig und wartet auf den Bescheid zur Ergänzungsprüfung.",
+      "Neun Jahre Intensivpflege mit Beatmung und Dialyse. Der Antrag auf Nostrifizierung läuft; die Rot-Weiß-Rot-Karte folgt erst nach dem Bescheid.",
     staerken: ["Beatmung", "Hämodynamisches Monitoring", "Einschulung von Kolleg:innen"],
     unterlagen: [
       { name: "Diplom & Transcript", status: "liegt vor" },
-      { name: "ÖSD-Zertifikat B1", status: "liegt vor" },
-      { name: "Rot-Weiß-Rot-Karte", status: "liegt vor" },
+      { name: "ÖSD-Zertifikat B2", status: "liegt vor" },
       { name: "Antrag Nostrifizierung", status: "in Prüfung" },
+      { name: "Rot-Weiß-Rot-Karte (erst nach Bescheid)", status: "offen" },
       { name: "Gesundheitsberuferegister", status: "offen" },
     ],
     avatar: { skin: "#c98f63", hair: "short", scrubs: "#2563eb" },
@@ -188,15 +200,15 @@ export const BEISPIELPROFILE: Profil[] = [
     ausbildung: "Bachelor of Nursing Science, Weiterbildung Palliativpflege",
     berufserfahrung: 12,
     fachbereiche: ["Palliativpflege", "Onkologie"],
-    deutsch: { niveau: "B1", zertifikat: true, hinweis: "ÖSD B1 bestanden" },
+    deutsch: { niveau: "B2", zertifikat: true, hinweis: "ÖSD B2 bestanden" },
     sprachen: [
       { name: "Thai", niveau: "Muttersprache" },
       { name: "Englisch", niveau: "B2" },
-      { name: "Deutsch", niveau: "B1" },
+      { name: "Deutsch", niveau: "B2" },
     ],
     phase: "legal",
-    einsatzbereitAb: "10/2027",
-    startAls: "Pflegeassistenz, DGKP nach Nostrifizierung",
+    einsatzbereitAb: "ca. 6–9 Monate nach Nostrifizierungsbescheid",
+    startAls: "DGKP nach Nostrifizierung, Rot-Weiß-Rot-Karte und Registereintrag",
     wunschBundesland: "Wien",
     einrichtung: "Pflegewohnhaus mit Palliativbereich",
     kurzprofil:
@@ -204,9 +216,9 @@ export const BEISPIELPROFILE: Profil[] = [
     staerken: ["Schmerzmanagement", "Sterbebegleitung", "Teamkoordination"],
     unterlagen: [
       { name: "Diplom & Transcript", status: "liegt vor" },
-      { name: "ÖSD-Zertifikat B1", status: "liegt vor" },
+      { name: "ÖSD-Zertifikat B2", status: "liegt vor" },
       { name: "Beglaubigte Übersetzungen", status: "in Prüfung" },
-      { name: "Antrag Rot-Weiß-Rot-Karte", status: "offen" },
+      { name: "Antrag Nostrifizierung", status: "offen" },
     ],
     avatar: { skin: "#d6a07a", hair: "bob", scrubs: "#db2777" },
   },
@@ -258,18 +270,18 @@ export const BEISPIELPROFILE: Profil[] = [
       { name: "Deutsch", niveau: "B2" },
     ],
     phase: "nostrifizierung",
-    einsatzbereitAb: "sofort nach Einreise",
-    startAls: "Pflegeassistenz, DGKP nach Ergänzungsprüfung",
+    einsatzbereitAb: "ca. 1–3 Monate nach Einreise",
+    startAls: "DGKP nach Eintragung im Gesundheitsberuferegister",
     wunschBundesland: "Kärnten",
     einrichtung: "Pflegeheim mit gerontopsychiatrischem Bereich",
     kurzprofil:
-      "Acht Jahre in der Gerontopsychiatrie. Deutsch auf B2, was die Anerkennung und den Einstieg spürbar erleichtert.",
+      "Acht Jahre in der Gerontopsychiatrie. Nostrifizierung abgeschlossen (mit Ergänzungsprüfung), Rot-Weiß-Rot-Karte erteilt, Einreise in Vorbereitung.",
     staerken: ["Deeskalation", "Biografiearbeit", "Medikamentenmanagement"],
     unterlagen: [
-      { name: "Diplom & Transcript", status: "liegt vor" },
+      { name: "Nostrifizierungsbescheid", status: "liegt vor" },
       { name: "ÖSD-Zertifikat B2", status: "liegt vor" },
       { name: "Rot-Weiß-Rot-Karte", status: "liegt vor" },
-      { name: "Antrag Nostrifizierung", status: "in Prüfung" },
+      { name: "Eintragung Gesundheitsberuferegister", status: "offen" },
     ],
     avatar: { skin: "#dcab82", hair: "bun", scrubs: "#ea580c", glasses: true },
   },
