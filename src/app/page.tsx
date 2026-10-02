@@ -1,4 +1,5 @@
 import B2GCalculator from "@/components/B2GCalculator";
+import ExplainerVideo from "@/components/ExplainerVideo";
 import BedarfSection from "@/components/BedarfSection";
 import FaqSection from "@/components/FaqSection";
 import HeroSection from "@/components/HeroSection";
@@ -12,6 +13,7 @@ export default function Home() {
       <Preloader />
       <main>
         <HeroSection />
+        <ExplainerVideo />
         <BedarfSection />
         <ProfilesSection />
         <B2GCalculator />
