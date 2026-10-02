@@ -95,7 +95,7 @@ export default function B2GCalculator() {
 
             <fieldset>
               <legend className="mb-2 text-sm font-medium text-slate-200">Zeitliche Dringlichkeit</legend>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                 {(Object.keys(URGENCY) as Urgency[]).map((key) => (
                   <button
                     key={key}

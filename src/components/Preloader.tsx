@@ -202,7 +202,7 @@ export default function Preloader() {
         <button
           type="button"
           onClick={skip}
-          className="absolute bottom-8 right-8 rounded-full border border-white/20 px-4 py-2 text-sm text-slate-300 transition hover:border-white/50 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+          className="absolute right-5 top-5 rounded-full sm:bottom-8 sm:right-8 sm:top-auto border border-white/20 px-4 py-2 text-sm text-slate-300 transition hover:border-white/50 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
         >
           Intro überspringen
         </button>
